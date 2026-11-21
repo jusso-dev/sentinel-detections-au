@@ -1,0 +1,57 @@
+id: 6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e17
+name: High-Risk Cloud Sign-In Without Phishing-Resistant MFA
+description: >-
+  Detects successful Microsoft Entra ID sign-ins flagged at medium or high risk where
+  single-factor authentication succeeded or legacy authentication protocols were used,
+  consistent with credential phishing or stolen session replay.
+author: sentinel-detections-au
+version: 1.0.0
+severity: High
+status: production
+targets:
+  - sentinel
+query_frequency: PT1H
+query_period: PT1H
+trigger_operator: gt
+trigger_threshold: 0
+tactics:
+  - InitialAccess
+  - CredentialAccess
+techniques:
+  - T1078.004
+  - T1528
+ism_controls:
+  - ISM-0580
+  - ISM-1405
+  - ISM-1504
+  - ISM-1657
+advisories:
+  - acsc-2026-09-08-russian-state-phishing-zimbra
+  - acsc-2026-11-17-vulnerabilities-patch-protect-prevent
+tables:
+  - SigninLogs
+required_data_connectors:
+  - connector_id: AzureActiveDirectory
+    data_types:
+      - SigninLogs
+entity_mappings:
+  - entity_type: Account
+    field_mappings:
+      - identifier: FullName
+        column_name: UserPrincipalName
+  - entity_type: IP
+    field_mappings:
+      - identifier: Address
+        column_name: IPAddress
+query: |
+  SigninLogs
+  | where ResultType == "0"
+  | where RiskLevelDuringSignIn in~ ("medium", "high")
+  | where AuthenticationRequirement =~ "singleFactorAuthentication"
+      or ClientAppUsed in~ ("IMAP4", "POP3", "SMTP", "Exchange ActiveSync", "Other clients")
+  | project TimeGenerated, UserPrincipalName, IPAddress, AppDisplayName, ClientAppUsed, RiskLevelDuringSignIn, AuthenticationRequirement
+false_positives:
+  - Travelling users signing in from unfamiliar IP addresses where legacy clients remain enabled.
+references:
+  - https://www.cyber.gov.au/alert/vulnerabilities-are-moving-quickly-so-patch-protect-prevent
+  - https://learn.microsoft.com/en-us/entra/id-protection/overview-identity-protection

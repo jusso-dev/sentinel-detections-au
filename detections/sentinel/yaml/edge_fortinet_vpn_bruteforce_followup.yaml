@@ -1,0 +1,42 @@
+id: 6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e06
+name: Edge VPN Brute Force Followed by Successful Authentication
+description: 'Detects repeated authentication failures against Fortinet or Citrix perimeter gateways in
+  CommonSecurityLog followed by a successful login from the same source IP address. ISM controls: ISM-0580,
+  ISM-1405, ISM-1504, ISM-1690. Advisories: acsc-2026-10-23-fortinet-critical-vulnerabilities, acsc-2026-10-01-citrix-netscaler-critical-vulnerabilities.'
+severity: High
+status: Available
+kind: Scheduled
+queryFrequency: PT1H
+queryPeriod: PT1H
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- InitialAccess
+- CredentialAccess
+relevantTechniques:
+- T1133
+- T1110
+query: "CommonSecurityLog\n| where DeviceVendor in~ (\"Fortinet\", \"Citrix\")\n| where Activity has_any\
+  \ (\"ssl-login\", \"vpn\", \"login\", \"authentication\")\n| summarize\n    FailedAttempts = countif(DeviceAction\
+  \ has_any (\"fail\", \"deny\", \"blocked\", \"ssl-login-fail\")),\n    SuccessAttempts = countif(DeviceAction\
+  \ has_any (\"success\", \"allow\", \"tunnel-up\", \"ssl-login-ok\")),\n    Users = make_set(DestinationUserName,\
+  \ 10)\n    by SourceIP, DeviceVendor\n| where FailedAttempts >= 5 and SuccessAttempts >= 1\n| extend\
+  \ DestinationUserName = tostring(Users[0])\n| project SourceIP, DeviceVendor, FailedAttempts, SuccessAttempts,\
+  \ DestinationUserName\n"
+version: 1.0.0
+requiredDataConnectors:
+- connectorId: Fortinet
+  dataTypes:
+  - CommonSecurityLog
+- connectorId: CitrixADC
+  dataTypes:
+  - CommonSecurityLog
+entityMappings:
+- entityType: IP
+  fieldMappings:
+  - identifier: Address
+    columnName: SourceIP
+- entityType: Account
+  fieldMappings:
+  - identifier: Name
+    columnName: DestinationUserName

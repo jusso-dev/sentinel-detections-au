@@ -1,0 +1,80 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspace": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Log Analytics workspace where Microsoft Sentinel is enabled."
+      }
+    }
+  },
+  "resources": [
+    {
+      "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces/providers', parameters('workspace'), 'Microsoft.SecurityInsights'), '/alertRules/6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e07')]",
+      "name": "[concat(parameters('workspace'), '/Microsoft.SecurityInsights/6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e07')]",
+      "type": "Microsoft.OperationalInsights/workspaces/providers/alertRules",
+      "kind": "Scheduled",
+      "apiVersion": "2023-11-01",
+      "properties": {
+        "displayName": "PHP Runtime Spawning Interactive Shell or Download Utility",
+        "description": "Detects PHP interpreter or PHP-FPM/CGI worker processes launching OS shells or network download utilities, indicating exploitation of critical PHP vulnerabilities. ISM controls: ISM-0580, ISM-1144, ISM-1405, ISM-1690. Advisories: acsc-2026-10-21-php-critical-vulnerabilities, acsc-2026-11-17-vulnerabilities-patch-protect-prevent.",
+        "severity": "High",
+        "enabled": true,
+        "query": "DeviceProcessEvents\n| where InitiatingProcessFileName has_any (\"php\", \"php-cgi\", \"php-fpm\")\n| where FileName in~ (\"sh\", \"bash\", \"dash\", \"cmd.exe\", \"powershell.exe\", \"curl\", \"wget\", \"python3\", \"perl\")\n| project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine, ReportId",
+        "queryFrequency": "PT1H",
+        "queryPeriod": "PT1H",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 0,
+        "suppressionDuration": "PT5H",
+        "suppressionEnabled": false,
+        "tactics": [
+          "InitialAccess",
+          "Execution"
+        ],
+        "techniques": [
+          "T1190",
+          "T1059"
+        ],
+        "incidentConfiguration": {
+          "createIncident": true,
+          "groupingConfiguration": {
+            "enabled": true,
+            "reopenClosedIncident": false,
+            "lookbackDuration": "PT5H",
+            "matchingMethod": "AllEntities",
+            "groupByEntities": [],
+            "groupByAlertDetails": [],
+            "groupByCustomDetails": []
+          }
+        },
+        "eventGroupingSettings": {
+          "aggregationKind": "SingleAlert"
+        },
+        "subTechniques": [
+          "T1059.004"
+        ],
+        "entityMappings": [
+          {
+            "entityType": "Host",
+            "fieldMappings": [
+              {
+                "identifier": "HostName",
+                "columnName": "DeviceName"
+              }
+            ]
+          },
+          {
+            "entityType": "Process",
+            "fieldMappings": [
+              {
+                "identifier": "CommandLine",
+                "columnName": "ProcessCommandLine"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

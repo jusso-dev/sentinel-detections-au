@@ -1,0 +1,24 @@
+rule: detections/rules/phishing_inbox_forwarding_rule.yaml
+table: CloudAppEvents
+positive_cases:
+  - name: Compromised account creating inbox rule forwarding mail externally
+    rows:
+      - Timestamp: "2026-10-15T16:00:00Z"
+        AccountObjectId: "00000000-0000-0000-0000-000000000016"
+        AccountDisplayName: "Jane Citizen"
+        ActionType: "New-InboxRule"
+        IPAddress: "203.0.113.88"
+        CountryCode: "RU"
+        RawEventData: "{\"Parameters\":[{\"Name\":\"ForwardTo\",\"Value\":\"drop@external.example\"},{\"Name\":\"MarkAsRead\",\"Value\":\"True\"}]}"
+        ReportId: "rep-16001"
+negative_cases:
+  - name: Benign inbox rule filing newsletters into a project folder
+    rows:
+      - Timestamp: "2026-10-15T16:05:00Z"
+        AccountObjectId: "00000000-0000-0000-0000-000000000016"
+        AccountDisplayName: "Jane Citizen"
+        ActionType: "New-InboxRule"
+        IPAddress: "198.51.100.20"
+        CountryCode: "AU"
+        RawEventData: "{\"Parameters\":[{\"Name\":\"MoveToFolder\",\"Value\":\"Newsletters\"}]}"
+        ReportId: "rep-16002"

@@ -1,0 +1,38 @@
+id: 6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e10
+name: LSASS Memory Dump via Comsvcs or Native Dump Utilities
+description: 'Detects attempts to dump Local Security Authority Subsystem Service (LSASS) process memory
+  using rundll32 with comsvcs.dll MiniDump or Sysinternals procdump. ISM controls: ISM-0580, ISM-1405,
+  ISM-1657. Advisories: acsc-2026-10-09-chinese-state-linked-automated-tools.'
+severity: High
+status: Available
+kind: Scheduled
+queryFrequency: PT1H
+queryPeriod: PT1H
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- CredentialAccess
+relevantTechniques:
+- T1003.001
+query: "DeviceProcessEvents\n| where (FileName =~ \"rundll32.exe\" and ProcessCommandLine has_all (\"\
+  comsvcs\", \"minidump\"))\n    or (FileName in~ (\"procdump.exe\", \"procdump64.exe\") and ProcessCommandLine\
+  \ has_all (\"-ma\", \"lsass\"))\n| project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName,\
+  \ FileName, ProcessCommandLine, ReportId\n"
+version: 1.0.0
+requiredDataConnectors:
+- connectorId: MicrosoftThreatProtection
+  dataTypes:
+  - DeviceProcessEvents
+entityMappings:
+- entityType: Host
+  fieldMappings:
+  - identifier: HostName
+    columnName: DeviceName
+- entityType: Account
+  fieldMappings:
+  - identifier: Name
+    columnName: AccountName
+- entityType: Process
+  fieldMappings:
+  - identifier: CommandLine
+    columnName: ProcessCommandLine

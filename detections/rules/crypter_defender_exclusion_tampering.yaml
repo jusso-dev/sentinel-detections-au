@@ -1,0 +1,68 @@
+id: 6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e15
+name: Microsoft Defender Antivirus Exclusion Added via Command Line
+description: >-
+  Detects PowerShell Add-MpPreference commands or registry modifications adding exclusions to
+  Microsoft Defender Antivirus, commonly performed by crypted malware loaders to evade scans.
+author: sentinel-detections-au
+version: 1.0.0
+severity: High
+status: production
+targets:
+  - sentinel
+  - defender_xdr
+query_frequency: PT1H
+query_period: PT1H
+trigger_operator: gt
+trigger_threshold: 0
+tactics:
+  - DefenseEvasion
+techniques:
+  - T1027
+  - T1112
+ism_controls:
+  - ISM-0580
+  - ISM-0843
+  - ISM-1405
+  - ISM-1621
+advisories:
+  - acsc-2026-09-08-digital-camouflage-crypters-malware
+tables:
+  - DeviceProcessEvents
+required_data_connectors:
+  - connector_id: MicrosoftThreatProtection
+    data_types:
+      - DeviceProcessEvents
+entity_mappings:
+  - entity_type: Host
+    field_mappings:
+      - identifier: HostName
+        column_name: DeviceName
+  - entity_type: Account
+    field_mappings:
+      - identifier: Name
+        column_name: AccountName
+  - entity_type: Process
+    field_mappings:
+      - identifier: CommandLine
+        column_name: ProcessCommandLine
+defender_xdr:
+  period: 1H
+  category: DefenseEvasion
+  recommended_actions: >-
+    Verify whether Microsoft Defender Antivirus Tamper Protection is enabled, remove any
+    unauthorised exclusions, and scan excluded paths for crypted payloads.
+  impacted_assets:
+    - type: device
+      identifier: deviceId
+      column: DeviceId
+query: |
+  DeviceProcessEvents
+  | where FileName in~ ("powershell.exe", "pwsh.exe", "cmd.exe", "reg.exe")
+  | where ProcessCommandLine has_any ("Add-MpPreference", "Set-MpPreference", "Windows Defender\\Exclusions")
+  | where ProcessCommandLine has_any ("ExclusionPath", "ExclusionProcess", "ExclusionExtension", "DisableRealtimeMonitoring", "Exclusions\\Paths")
+  | project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine, ReportId
+false_positives:
+  - Authorised endpoint security administrators testing local exclusions outside Intune policy.
+references:
+  - https://www.cyber.gov.au/advisory/digital-camouflage-crypters-make-malware-undetectable
+  - https://learn.microsoft.com/en-us/defender-endpoint/prevent-changes-to-security-settings-with-tamper-protection

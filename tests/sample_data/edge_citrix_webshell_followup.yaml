@@ -1,0 +1,24 @@
+rule: detections/rules/edge_citrix_webshell_followup.yaml
+table: DeviceProcessEvents
+positive_cases:
+  - name: IIS worker spawning cmd.exe for reconnaissance
+    rows:
+      - Timestamp: "2026-10-15T04:00:00Z"
+        DeviceId: "00000000-0000-0000-0000-000000000004"
+        DeviceName: "web-dmz-01.example.local"
+        AccountName: "iis apppool\\defaultapppool"
+        InitiatingProcessFileName: "w3wp.exe"
+        FileName: "cmd.exe"
+        ProcessCommandLine: "cmd.exe /c whoami"
+        ReportId: 4001
+negative_cases:
+  - name: IIS worker spawning benign diagnostic binary
+    rows:
+      - Timestamp: "2026-10-15T04:05:00Z"
+        DeviceId: "00000000-0000-0000-0000-000000000004"
+        DeviceName: "web-dmz-01.example.local"
+        AccountName: "iis apppool\\defaultapppool"
+        InitiatingProcessFileName: "w3wp.exe"
+        FileName: "csc.exe"
+        ProcessCommandLine: "csc.exe /noconfig"
+        ReportId: 4002

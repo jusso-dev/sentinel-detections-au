@@ -1,0 +1,48 @@
+id: 6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e16
+name: Suspicious Exchange Online Inbox Forwarding or Hiding Rule Created
+description: 'Detects creation or modification of Exchange Online inbox rules that forward email externally
+  or hide messages in RSS or Deleted Items folders following credential phishing. ISM controls: ISM-0580,
+  ISM-1405, ISM-1504. Advisories: acsc-2026-09-08-russian-state-phishing-zimbra.'
+severity: High
+status: Available
+kind: Scheduled
+queryFrequency: PT1H
+queryPeriod: PT1H
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- Collection
+- InitialAccess
+relevantTechniques:
+- T1114.003
+- T1566.002
+query: 'CloudAppEvents
+
+  | where ActionType in ("New-InboxRule", "Set-InboxRule", "Set-Mailbox")
+
+  | extend RuleData = tostring(RawEventData)
+
+  | where RuleData has_any ("ForwardTo", "ForwardAsAttachmentTo", "RedirectTo", "ForwardingSmtpAddress",
+  "MarkAsRead", "MoveToFolder")
+
+  | where RuleData has_any ("ForwardTo", "ForwardAsAttachmentTo", "RedirectTo", "ForwardingSmtpAddress",
+  "RSS Feeds", "Deleted Items", "Conversation History")
+
+  | project Timestamp, AccountObjectId, AccountDisplayName, ActionType, IPAddress, CountryCode, RuleData,
+  ReportId
+
+  '
+version: 1.0.0
+requiredDataConnectors:
+- connectorId: MicrosoftThreatProtection
+  dataTypes:
+  - CloudAppEvents
+entityMappings:
+- entityType: Account
+  fieldMappings:
+  - identifier: FullName
+    columnName: AccountDisplayName
+- entityType: IP
+  fieldMappings:
+  - identifier: Address
+    columnName: IPAddress

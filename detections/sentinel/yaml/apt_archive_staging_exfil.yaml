@@ -1,0 +1,46 @@
+id: 6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e09
+name: Password-Protected Archive Staging for Data Exfiltration
+description: 'Detects creation of password-protected or split archives via 7-Zip, WinRAR or tar inside
+  temporary or staging folders, a common pre-exfiltration step in state-linked intrusions. ISM controls:
+  ISM-0580, ISM-1405. Advisories: acsc-2026-10-09-chinese-state-linked-automated-tools.'
+severity: Medium
+status: Available
+kind: Scheduled
+queryFrequency: PT1H
+queryPeriod: PT1H
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- Collection
+relevantTechniques:
+- T1560.001
+query: 'DeviceProcessEvents
+
+  | where FileName in~ ("7z.exe", "7za.exe", "rar.exe", "winrar.exe", "7z")
+
+  | where ProcessCommandLine has_any (" -p", " -hp", " -v")
+
+  | where ProcessCommandLine has_any ("\\temp\\", "\\programdata\\", "\\public\\", "/tmp/", "/dev/shm/")
+
+  | project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine,
+  ReportId
+
+  '
+version: 1.0.0
+requiredDataConnectors:
+- connectorId: MicrosoftThreatProtection
+  dataTypes:
+  - DeviceProcessEvents
+entityMappings:
+- entityType: Host
+  fieldMappings:
+  - identifier: HostName
+    columnName: DeviceName
+- entityType: Account
+  fieldMappings:
+  - identifier: Name
+    columnName: AccountName
+- entityType: Process
+  fieldMappings:
+  - identifier: CommandLine
+    columnName: ProcessCommandLine

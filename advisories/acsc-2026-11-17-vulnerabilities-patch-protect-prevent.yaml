@@ -1,0 +1,41 @@
+id: acsc-2026-11-17-vulnerabilities-patch-protect-prevent
+title: Vulnerabilities are moving quickly, so patch, protect, prevent
+date: "2026-11-17"
+source: alerts
+link: https://www.cyber.gov.au/alert/vulnerabilities-are-moving-quickly-so-patch-protect-prevent
+status: mapped
+needs_human_review: false
+summary: >-
+  ASD's ACSC alert highlighting that threat actors are exploiting newly disclosed software
+  vulnerabilities within days of release. For Microsoft Sentinel and Defender XDR teams, the
+  priority is detecting post-exploitation follow-on activity on internet-facing hosts, anomalous
+  cloud sign-ins and suspicious lateral movement from perimeter assets.
+attack_techniques:
+  - T1190
+  - T1078.004
+  - T1505.003
+affected_products:
+  - Internet-facing web servers
+  - Edge network appliances
+  - Microsoft Entra ID
+iocs:
+  published: false
+  notes: >-
+    Strategic vulnerability management alert without static indicators. Refer to the canonical
+    cyber.gov.au page for full patching and hardening guidance.
+ism_controls:
+  - ISM-1144
+  - ISM-1690
+  - ISM-0580
+  - ISM-1405
+linked_detections:
+  - detections/rules/edge_citrix_webshell_followup.yaml
+  - detections/rules/web_php_cgi_child_shell.yaml
+  - detections/rules/phishing_signin_token_anomaly.yaml
+attribution: >-
+  Summarised independently from official ASD ACSC alert (Commonwealth of Australia 2026).
+  Refer to the linked cyber.gov.au publication for authoritative text.
+extraction_metadata:
+  extracted_at: "2026-11-21"
+  method: manual
+  llm_assisted: false

@@ -1,0 +1,77 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspace": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Log Analytics workspace where Microsoft Sentinel is enabled."
+      }
+    }
+  },
+  "resources": [
+    {
+      "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces/providers', parameters('workspace'), 'Microsoft.SecurityInsights'), '/alertRules/6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e06')]",
+      "name": "[concat(parameters('workspace'), '/Microsoft.SecurityInsights/6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e06')]",
+      "type": "Microsoft.OperationalInsights/workspaces/providers/alertRules",
+      "kind": "Scheduled",
+      "apiVersion": "2023-11-01",
+      "properties": {
+        "displayName": "Edge VPN Brute Force Followed by Successful Authentication",
+        "description": "Detects repeated authentication failures against Fortinet or Citrix perimeter gateways in CommonSecurityLog followed by a successful login from the same source IP address. ISM controls: ISM-0580, ISM-1405, ISM-1504, ISM-1690. Advisories: acsc-2026-10-23-fortinet-critical-vulnerabilities, acsc-2026-10-01-citrix-netscaler-critical-vulnerabilities.",
+        "severity": "High",
+        "enabled": true,
+        "query": "CommonSecurityLog\n| where DeviceVendor in~ (\"Fortinet\", \"Citrix\")\n| where Activity has_any (\"ssl-login\", \"vpn\", \"login\", \"authentication\")\n| summarize\n    FailedAttempts = countif(DeviceAction has_any (\"fail\", \"deny\", \"blocked\", \"ssl-login-fail\")),\n    SuccessAttempts = countif(DeviceAction has_any (\"success\", \"allow\", \"tunnel-up\", \"ssl-login-ok\")),\n    Users = make_set(DestinationUserName, 10)\n    by SourceIP, DeviceVendor\n| where FailedAttempts >= 5 and SuccessAttempts >= 1\n| extend DestinationUserName = tostring(Users[0])\n| project SourceIP, DeviceVendor, FailedAttempts, SuccessAttempts, DestinationUserName",
+        "queryFrequency": "PT1H",
+        "queryPeriod": "PT1H",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 0,
+        "suppressionDuration": "PT5H",
+        "suppressionEnabled": false,
+        "tactics": [
+          "InitialAccess",
+          "CredentialAccess"
+        ],
+        "techniques": [
+          "T1133",
+          "T1110"
+        ],
+        "incidentConfiguration": {
+          "createIncident": true,
+          "groupingConfiguration": {
+            "enabled": true,
+            "reopenClosedIncident": false,
+            "lookbackDuration": "PT5H",
+            "matchingMethod": "AllEntities",
+            "groupByEntities": [],
+            "groupByAlertDetails": [],
+            "groupByCustomDetails": []
+          }
+        },
+        "eventGroupingSettings": {
+          "aggregationKind": "SingleAlert"
+        },
+        "entityMappings": [
+          {
+            "entityType": "IP",
+            "fieldMappings": [
+              {
+                "identifier": "Address",
+                "columnName": "SourceIP"
+              }
+            ]
+          },
+          {
+            "entityType": "Account",
+            "fieldMappings": [
+              {
+                "identifier": "Name",
+                "columnName": "DestinationUserName"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

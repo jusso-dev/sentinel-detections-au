@@ -1,0 +1,32 @@
+{
+  "@odata.type": "#microsoft.graph.security.detectionRule",
+  "displayName": "Web Server Process Spawning Command Shell (Web Shell Follow-On)",
+  "isEnabled": true,
+  "queryCondition": {
+    "queryText": "DeviceProcessEvents\n| where InitiatingProcessFileName in~ (\"w3wp.exe\", \"httpd\", \"apache2\", \"nginx\", \"tomcat9.exe\", \"java.exe\")\n| where FileName in~ (\"cmd.exe\", \"powershell.exe\", \"pwsh.exe\", \"sh\", \"bash\", \"whoami.exe\", \"whoami\", \"certutil.exe\", \"curl\", \"wget\")\n| project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine, ReportId"
+  },
+  "schedule": {
+    "period": "1H"
+  },
+  "detectionAction": {
+    "alertTemplate": {
+      "title": "Web Server Process Spawning Command Shell (Web Shell Follow-On)",
+      "description": "Detects web server or application gateway worker processes spawning command shells or reconnaissance binaries, indicative of web shell execution following exploitation of internet-facing applications or appliances. ISM controls: ISM-0580, ISM-1144, ISM-1405. Advisories: acsc-2026-10-01-citrix-netscaler-critical-vulnerabilities, acsc-2026-11-17-vulnerabilities-patch-protect-prevent.",
+      "severity": "high",
+      "category": "Persistence",
+      "mitreTechniques": [
+        "T1190",
+        "T1505.003"
+      ],
+      "recommendedActions": "Inspect web server logs and webroot files for webshells, verify patch status of the internet-facing application, and contain the host (ISM controls: ISM-0580, ISM-1144, ISM-1405; Advisories: acsc-2026-10-01-citrix-netscaler-critical-vulnerabilities, acsc-2026-11-17-vulnerabilities-patch-protect-prevent).",
+      "impactedAssets": [
+        {
+          "@odata.type": "#microsoft.graph.security.impactedDeviceAsset",
+          "identifier": "deviceId"
+        }
+      ]
+    },
+    "organizationalScope": null,
+    "responseActions": []
+  }
+}

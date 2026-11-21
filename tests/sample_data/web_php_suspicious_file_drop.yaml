@@ -1,0 +1,26 @@
+rule: detections/rules/web_php_suspicious_file_drop.yaml
+table: DeviceFileEvents
+positive_cases:
+  - name: PHP process dropping webshell into /var/www/html
+    rows:
+      - Timestamp: "2026-10-15T08:00:00Z"
+        DeviceId: "00000000-0000-0000-0000-000000000008"
+        DeviceName: "web-php-01.example.local"
+        ActionType: "FileCreated"
+        InitiatingProcessFileName: "php-fpm"
+        FolderPath: "/var/www/html/uploads"
+        FileName: "cache_helper.php"
+        SHA256: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        ReportId: 8001
+negative_cases:
+  - name: PHP process creating temporary image file in uploads
+    rows:
+      - Timestamp: "2026-10-15T08:05:00Z"
+        DeviceId: "00000000-0000-0000-0000-000000000008"
+        DeviceName: "web-php-01.example.local"
+        ActionType: "FileCreated"
+        InitiatingProcessFileName: "php-fpm"
+        FolderPath: "/var/www/html/uploads"
+        FileName: "avatar.png"
+        SHA256: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        ReportId: 8002

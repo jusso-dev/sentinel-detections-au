@@ -1,0 +1,44 @@
+id: 6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e04
+name: Web Server Process Spawning Command Shell (Web Shell Follow-On)
+description: 'Detects web server or application gateway worker processes spawning command shells or reconnaissance
+  binaries, indicative of web shell execution following exploitation of internet-facing applications or
+  appliances. ISM controls: ISM-0580, ISM-1144, ISM-1405. Advisories: acsc-2026-10-01-citrix-netscaler-critical-vulnerabilities,
+  acsc-2026-11-17-vulnerabilities-patch-protect-prevent.'
+severity: High
+status: Available
+kind: Scheduled
+queryFrequency: PT1H
+queryPeriod: PT1H
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- InitialAccess
+- Persistence
+relevantTechniques:
+- T1190
+- T1505.003
+query: 'DeviceProcessEvents
+
+  | where InitiatingProcessFileName in~ ("w3wp.exe", "httpd", "apache2", "nginx", "tomcat9.exe", "java.exe")
+
+  | where FileName in~ ("cmd.exe", "powershell.exe", "pwsh.exe", "sh", "bash", "whoami.exe", "whoami",
+  "certutil.exe", "curl", "wget")
+
+  | project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine,
+  ReportId
+
+  '
+version: 1.0.0
+requiredDataConnectors:
+- connectorId: MicrosoftThreatProtection
+  dataTypes:
+  - DeviceProcessEvents
+entityMappings:
+- entityType: Host
+  fieldMappings:
+  - identifier: HostName
+    columnName: DeviceName
+- entityType: Process
+  fieldMappings:
+  - identifier: CommandLine
+    columnName: ProcessCommandLine

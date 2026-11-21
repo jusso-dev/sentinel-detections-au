@@ -1,0 +1,51 @@
+id: 6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e12
+name: High-Risk OAuth Permission Consent Granted in Microsoft Entra ID
+description: 'Detects consent grants assigning high-privilege Graph or mail/file read permissions to enterprise
+  applications or AI integrations, which can expose sensitive data if abused. ISM controls: ISM-0580,
+  ISM-1405, ISM-1504, ISM-1657. Advisories: acsc-2026-09-25-protect-organisations-ai-services.'
+severity: High
+status: Available
+kind: Scheduled
+queryFrequency: PT1H
+queryPeriod: PT1H
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- CredentialAccess
+- LateralMovement
+relevantTechniques:
+- T1528
+- T1550.001
+query: 'AuditLogs
+
+  | where OperationName in ("Consent to application", "Add delegated permission grant", "Add app role
+  assignment to service principal")
+
+  | where Result == "success"
+
+  | extend ModifiedProps = tostring(TargetResources)
+
+  | where ModifiedProps has_any ("Mail.Read", "Files.Read.All", "Sites.Read.All", "Directory.ReadWrite.All",
+  "RoleManagement.ReadWrite.Directory")
+
+  | extend InitiatingUser = tostring(InitiatedBy.user.userPrincipalName)
+
+  | extend TargetAppName = tostring(TargetResources[0].displayName)
+
+  | project TimeGenerated, OperationName, InitiatingUser, TargetAppName, ModifiedProps
+
+  '
+version: 1.0.0
+requiredDataConnectors:
+- connectorId: AzureActiveDirectory
+  dataTypes:
+  - AuditLogs
+entityMappings:
+- entityType: Account
+  fieldMappings:
+  - identifier: FullName
+    columnName: InitiatingUser
+- entityType: CloudApplication
+  fieldMappings:
+  - identifier: Name
+    columnName: TargetAppName

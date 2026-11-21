@@ -1,0 +1,40 @@
+id: 6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e03
+name: Volume Shadow Copy Deletion via Native Utilities
+description: 'Detects deletion of Windows Volume Shadow Copies via vssadmin, wmic or PowerShell to inhibit
+  system recovery during ransomware or destructive post-exploitation activity. ISM controls: ISM-0580,
+  ISM-1405, ISM-1511. Advisories: acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques,
+  acsc-2026-09-08-digital-camouflage-crypters-malware.'
+severity: High
+status: Available
+kind: Scheduled
+queryFrequency: PT1H
+queryPeriod: PT1H
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- Impact
+relevantTechniques:
+- T1490
+query: "DeviceProcessEvents\n| where FileName in~ (\"vssadmin.exe\", \"wmic.exe\", \"powershell.exe\"\
+  , \"pwsh.exe\")\n| where (ProcessCommandLine has_all (\"delete\", \"shadows\"))\n    or (ProcessCommandLine\
+  \ has_all (\"shadowcopy\", \"delete\"))\n    or (ProcessCommandLine has_all (\"Win32_ShadowCopy\", \"\
+  Delete\"))\n| project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName,\
+  \ ProcessCommandLine, ReportId\n"
+version: 1.0.0
+requiredDataConnectors:
+- connectorId: MicrosoftThreatProtection
+  dataTypes:
+  - DeviceProcessEvents
+entityMappings:
+- entityType: Host
+  fieldMappings:
+  - identifier: HostName
+    columnName: DeviceName
+- entityType: Account
+  fieldMappings:
+  - identifier: Name
+    columnName: AccountName
+- entityType: Process
+  fieldMappings:
+  - identifier: CommandLine
+    columnName: ProcessCommandLine

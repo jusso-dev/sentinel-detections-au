@@ -1,0 +1,30 @@
+rule: detections/rules/identity_ai_high_risk_oauth_consent.yaml
+table: AuditLogs
+positive_cases:
+  - name: Delegated Mail.Read consent granted to third-party AI app
+    rows:
+      - TimeGenerated: "2026-10-15T12:00:00Z"
+        OperationName: "Consent to application"
+        Result: "success"
+        InitiatedBy:
+          user:
+            userPrincipalName: "alice@example.com.au"
+        TargetResources:
+          - displayName: "Unverified-AI-Mail-Helper"
+            modifiedProperties:
+              - displayName: "ConsentAction.Permissions"
+                newValue: "Mail.Read Files.Read.All"
+negative_cases:
+  - name: Low-privilege User.Read consent granted
+    rows:
+      - TimeGenerated: "2026-10-15T12:05:00Z"
+        OperationName: "Consent to application"
+        Result: "success"
+        InitiatedBy:
+          user:
+            userPrincipalName: "alice@example.com.au"
+        TargetResources:
+          - displayName: "Internal-Intranet-App"
+            modifiedProperties:
+              - displayName: "ConsentAction.Permissions"
+                newValue: "openid profile User.Read"

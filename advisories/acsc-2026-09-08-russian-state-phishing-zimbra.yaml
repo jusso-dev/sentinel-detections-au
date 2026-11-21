@@ -1,0 +1,40 @@
+id: acsc-2026-09-08-russian-state-phishing-zimbra
+title: Russian state-supported cyber actors conduct phishing campaign targeting users of Zimbra Collaboration Suite
+date: "2026-09-08"
+source: advisories
+link: https://www.cyber.gov.au/advisory/russian-state-supported-cyber-actors-conduct-phishing-campaign-targeting-users-of-zimbra-collaboration-suite
+status: mapped
+needs_human_review: false
+summary: >-
+  ASD's ACSC advisory warning of credential phishing campaigns by Russian state-supported
+  actors targeting collaboration and webmail users. For Microsoft 365 and Sentinel defenders,
+  detection priorities include suspicious mailbox forwarding or hiding rules created after
+  compromise and anomalous token or session sign-ins from unexpected networks.
+attack_techniques:
+  - T1566.002
+  - T1114.003
+  - T1078.004
+affected_products:
+  - Zimbra Collaboration Suite
+  - Enterprise email services
+  - Microsoft 365 Exchange Online
+iocs:
+  published: false
+  notes: >-
+    Consult the canonical cyber.gov.au advisory for campaign details and recommended email
+    security controls.
+ism_controls:
+  - ISM-0580
+  - ISM-1405
+  - ISM-1504
+  - ISM-1657
+linked_detections:
+  - detections/rules/phishing_inbox_forwarding_rule.yaml
+  - detections/rules/phishing_signin_token_anomaly.yaml
+attribution: >-
+  Summarised independently from official ASD ACSC advisory (Commonwealth of Australia 2026).
+  Refer to the linked cyber.gov.au publication for authoritative text.
+extraction_metadata:
+  extracted_at: "2026-11-21"
+  method: manual
+  llm_assisted: false

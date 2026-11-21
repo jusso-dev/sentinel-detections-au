@@ -1,0 +1,32 @@
+{
+  "@odata.type": "#microsoft.graph.security.detectionRule",
+  "displayName": "Suspicious Node.js or Python Developer Runtime Spawning Obfuscated Shell",
+  "isEnabled": true,
+  "queryCondition": {
+    "queryText": "DeviceProcessEvents\n| where InitiatingProcessFileName in~ (\"node.exe\", \"node\", \"npm\", \"npx\", \"python.exe\", \"python3\")\n| where FileName in~ (\"powershell.exe\", \"pwsh.exe\", \"cmd.exe\", \"sh\", \"bash\", \"curl\", \"wget\")\n| where ProcessCommandLine has_any (\"-enc\", \"base64\", \"eval(\", \"curl \", \"wget \", \"http://\", \"https://\")\n| where ProcessCommandLine has_any (\"| sh\", \"| bash\", \"iex\", \"invoke-expression\", \"-enc\", \"base64\")\n| project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine, ReportId"
+  },
+  "schedule": {
+    "period": "1H"
+  },
+  "detectionAction": {
+    "alertTemplate": {
+      "title": "Suspicious Node.js or Python Developer Runtime Spawning Obfuscated Shell",
+      "description": "Detects Node.js, npm or Python developer runtimes executing remote download or encoded shell commands, matching WaterPlum (Contagious Interview) tradecraft targeting IT staff. ISM controls: ISM-0580, ISM-0843, ISM-1405, ISM-1621. Advisories: acsc-2026-09-22-north-korean-waterplum-contagious-interview.",
+      "severity": "high",
+      "category": "Execution",
+      "mitreTechniques": [
+        "T1059.007",
+        "T1059.006"
+      ],
+      "recommendedActions": "Inspect the parent npm package or Python script on the developer workstation, check for untrusted cloned repositories, and rotate developer SSH keys and cloud tokens (ISM controls: ISM-0580, ISM-0843, ISM-1405, ISM-1621; Advisories: acsc-2026-09-22-north-korean-waterplum-contagious-interview).",
+      "impactedAssets": [
+        {
+          "@odata.type": "#microsoft.graph.security.impactedDeviceAsset",
+          "identifier": "deviceId"
+        }
+      ]
+    },
+    "organizationalScope": null,
+    "responseActions": []
+  }
+}

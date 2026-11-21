@@ -1,0 +1,43 @@
+id: acsc-2026-09-22-north-korean-waterplum-contagious-interview
+title: North Korean WaterPlum (Contagious Interview) cyber actor group targeting IT professionals
+date: "2026-09-22"
+source: advisories
+link: https://www.cyber.gov.au/advisory/north-korean-waterplum-commonly-referred-to-as-contagious-interview-cyber-actor-group-targeting-it-professionals
+status: mapped
+needs_human_review: false
+summary: >-
+  Joint cyber security advisory describing North Korean threat actors (WaterPlum / Contagious
+  Interview) targeting software engineers and IT staff through fraudulent coding assessments
+  that execute trojanised Node.js or Python scripts to harvest browser credentials and wallet
+  data. Defender XDR detections monitor suspicious developer runtime child shells and
+  non-browser processes reading browser login stores.
+attack_techniques:
+  - T1059.007
+  - T1059.006
+  - T1555.003
+affected_products:
+  - Node.js
+  - Python
+  - Microsoft Windows
+  - macOS
+  - Web browsers
+iocs:
+  published: false
+  notes: >-
+    Refer to the canonical cyber.gov.au joint advisory for full actor descriptions and any
+    published indicator appendices.
+ism_controls:
+  - ISM-0580
+  - ISM-0843
+  - ISM-1405
+  - ISM-1621
+linked_detections:
+  - detections/rules/waterplum_dev_node_python_c2_spawn.yaml
+  - detections/rules/waterplum_browser_credential_access.yaml
+attribution: >-
+  Summarised independently from official ASD ACSC joint advisory (Commonwealth of Australia
+  2026). Refer to the linked cyber.gov.au publication for authoritative text.
+extraction_metadata:
+  extracted_at: "2026-11-21"
+  method: manual
+  llm_assisted: false

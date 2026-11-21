@@ -1,0 +1,40 @@
+id: acsc-2026-10-21-php-critical-vulnerabilities
+title: Critical vulnerabilities in PHP
+date: "2026-10-21"
+source: alerts
+link: https://www.cyber.gov.au/alert/critical-vulnerabilities-in-php
+status: mapped
+needs_human_review: false
+summary: >-
+  ASD's ACSC alert concerning two critical vulnerabilities disclosed in PHP impacting web
+  applications. Microsoft Defender XDR and Sentinel coverage targets PHP worker processes
+  spawning interactive shells or command interpreters, and unexpected script files written
+  into webroot directories.
+attack_techniques:
+  - T1190
+  - T1059.004
+  - T1505.003
+affected_products:
+  - PHP
+  - Apache HTTP Server
+  - NGINX
+  - Microsoft IIS
+iocs:
+  published: false
+  notes: >-
+    Check the canonical cyber.gov.au alert for affected PHP release branches and updates.
+ism_controls:
+  - ISM-1144
+  - ISM-1690
+  - ISM-0580
+  - ISM-1405
+linked_detections:
+  - detections/rules/web_php_cgi_child_shell.yaml
+  - detections/rules/web_php_suspicious_file_drop.yaml
+attribution: >-
+  Summarised independently from official ASD ACSC alert (Commonwealth of Australia 2026).
+  Refer to the linked cyber.gov.au publication for authoritative text.
+extraction_metadata:
+  extracted_at: "2026-11-21"
+  method: manual
+  llm_assisted: false

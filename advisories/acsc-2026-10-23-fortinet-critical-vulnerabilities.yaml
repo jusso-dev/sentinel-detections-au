@@ -1,0 +1,41 @@
+id: acsc-2026-10-23-fortinet-critical-vulnerabilities
+title: Critical vulnerabilities in Fortinet products
+date: "2026-10-23"
+source: alerts
+link: https://www.cyber.gov.au/alert/critical-vulnerabilities-in-fortinet-products
+status: mapped
+needs_human_review: false
+summary: >-
+  ASD's ACSC alert advising organisations to urgently patch critical vulnerabilities in
+  Fortinet appliances. Because edge devices often lack endpoint agents, Sentinel and Defender
+  XDR detections focus on firewall syslog authentication anomalies and unexpected internal
+  SMB or remote administration connections originating from gateway and DMZ addresses.
+attack_techniques:
+  - T1190
+  - T1133
+  - T1110
+  - T1021.002
+affected_products:
+  - Fortinet FortiGate
+  - Fortinet FortiOS
+  - Fortinet FortiManager
+iocs:
+  published: false
+  notes: >-
+    Refer to the canonical cyber.gov.au alert and vendor advisories for affected versions and
+    remediation steps.
+ism_controls:
+  - ISM-1144
+  - ISM-1690
+  - ISM-0580
+  - ISM-1405
+linked_detections:
+  - detections/rules/edge_fortinet_post_exploit_lateral.yaml
+  - detections/rules/edge_fortinet_vpn_bruteforce_followup.yaml
+attribution: >-
+  Summarised independently from official ASD ACSC alert (Commonwealth of Australia 2026).
+  Refer to the linked cyber.gov.au publication for authoritative text.
+extraction_metadata:
+  extracted_at: "2026-11-21"
+  method: manual
+  llm_assisted: false

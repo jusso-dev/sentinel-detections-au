@@ -1,0 +1,57 @@
+id: 6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e12
+name: High-Risk OAuth Permission Consent Granted in Microsoft Entra ID
+description: >-
+  Detects consent grants assigning high-privilege Graph or mail/file read permissions to
+  enterprise applications or AI integrations, which can expose sensitive data if abused.
+author: sentinel-detections-au
+version: 1.0.0
+severity: High
+status: production
+targets:
+  - sentinel
+query_frequency: PT1H
+query_period: PT1H
+trigger_operator: gt
+trigger_threshold: 0
+tactics:
+  - CredentialAccess
+  - LateralMovement
+techniques:
+  - T1528
+  - T1550.001
+ism_controls:
+  - ISM-0580
+  - ISM-1405
+  - ISM-1504
+  - ISM-1657
+advisories:
+  - acsc-2026-09-25-protect-organisations-ai-services
+tables:
+  - AuditLogs
+required_data_connectors:
+  - connector_id: AzureActiveDirectory
+    data_types:
+      - AuditLogs
+entity_mappings:
+  - entity_type: Account
+    field_mappings:
+      - identifier: FullName
+        column_name: InitiatingUser
+  - entity_type: CloudApplication
+    field_mappings:
+      - identifier: Name
+        column_name: TargetAppName
+query: |
+  AuditLogs
+  | where OperationName in ("Consent to application", "Add delegated permission grant", "Add app role assignment to service principal")
+  | where Result == "success"
+  | extend ModifiedProps = tostring(TargetResources)
+  | where ModifiedProps has_any ("Mail.Read", "Files.Read.All", "Sites.Read.All", "Directory.ReadWrite.All", "RoleManagement.ReadWrite.Directory")
+  | extend InitiatingUser = tostring(InitiatedBy.user.userPrincipalName)
+  | extend TargetAppName = tostring(TargetResources[0].displayName)
+  | project TimeGenerated, OperationName, InitiatingUser, TargetAppName, ModifiedProps
+false_positives:
+  - Authorised onboarding of approved Microsoft 365 or AI integrations through change control.
+references:
+  - https://www.cyber.gov.au/advisory/protect-your-organisations-ai-services
+  - https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/manage-consent-requests

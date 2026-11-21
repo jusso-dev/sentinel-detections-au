@@ -1,0 +1,65 @@
+id: 6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e07
+name: PHP Runtime Spawning Interactive Shell or Download Utility
+description: >-
+  Detects PHP interpreter or PHP-FPM/CGI worker processes launching OS shells or network
+  download utilities, indicating exploitation of critical PHP vulnerabilities.
+author: sentinel-detections-au
+version: 1.0.0
+severity: High
+status: production
+targets:
+  - sentinel
+  - defender_xdr
+query_frequency: PT1H
+query_period: PT1H
+trigger_operator: gt
+trigger_threshold: 0
+tactics:
+  - InitialAccess
+  - Execution
+techniques:
+  - T1190
+  - T1059.004
+ism_controls:
+  - ISM-0580
+  - ISM-1144
+  - ISM-1405
+  - ISM-1690
+advisories:
+  - acsc-2026-10-21-php-critical-vulnerabilities
+  - acsc-2026-11-17-vulnerabilities-patch-protect-prevent
+tables:
+  - DeviceProcessEvents
+required_data_connectors:
+  - connector_id: MicrosoftThreatProtection
+    data_types:
+      - DeviceProcessEvents
+entity_mappings:
+  - entity_type: Host
+    field_mappings:
+      - identifier: HostName
+        column_name: DeviceName
+  - entity_type: Process
+    field_mappings:
+      - identifier: CommandLine
+        column_name: ProcessCommandLine
+defender_xdr:
+  period: 1H
+  category: Execution
+  recommended_actions: >-
+    Check PHP version and patch status immediately, inspect HTTP access logs for exploit
+    payloads, and review the host for persistence.
+  impacted_assets:
+    - type: device
+      identifier: deviceId
+      column: DeviceId
+query: |
+  DeviceProcessEvents
+  | where InitiatingProcessFileName has_any ("php", "php-cgi", "php-fpm")
+  | where FileName in~ ("sh", "bash", "dash", "cmd.exe", "powershell.exe", "curl", "wget", "python3", "perl")
+  | project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine, ReportId
+false_positives:
+  - PHP applications that intentionally invoke shell utilities via exec or proc_open.
+references:
+  - https://www.cyber.gov.au/alert/critical-vulnerabilities-in-php
+  - https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-deviceprocessevents-table
