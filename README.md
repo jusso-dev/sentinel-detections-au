@@ -15,15 +15,22 @@ ASD's ACSC publishes advisories and alerts with techniques and indicators, but t
 
 All rules are tested against sample data in CI and packaged for one-step deployment.
 
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjusso-dev%2Fsentinel-detections-au%2Fmain%2Fdeploy%2Fazuredeploy.json)
+
+See [deploy/README.md](deploy/README.md) for Microsoft Sentinel ARM and least-privilege Microsoft Graph Defender XDR deployment steps.
+
 ## Layout
 
 ```
 advisories/      Structured advisory records (YAML)
+deploy/          Combined Sentinel ARM template and Graph Defender XDR deploy script
 detections/      Sentinel analytics rules and Defender XDR custom detections
+docs/            Source policy, detection format, coverage report and architecture docs
 hunting/         Hunting queries
-pipeline/        Advisory watcher and mapper
-mappings/        ATT&CK and ISM mappings
-tests/           KQL tests and sample data
+mappings/        ATT&CK matrix, Navigator layer and ISM mappings
+pipeline/        Advisory watcher, extractor, renderer, test harness and packager
+schemas/         JSON Schemas for advisories and detections
+tests/           Unit tests and datatable sample data
 ```
 
 ## Related projects
