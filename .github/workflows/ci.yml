@@ -37,5 +37,8 @@ jobs:
       - name: Run KQL detection test harness
         run: python -m pipeline.kql_harness
 
+      - name: Verify ATT&CK Navigator layer and ISM coverage report
+        run: python -m pipeline.coverage --check
+
       - name: Run unit tests
         run: pytest -v
