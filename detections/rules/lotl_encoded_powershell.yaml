@@ -1,0 +1,67 @@
+id: 6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e01
+name: Encoded PowerShell Execution via Living off the Land
+description: >-
+  Detects powershell.exe or pwsh.exe launched with encoded command flags, a common living
+  off the land execution technique highlighted in ASD/ACSC joint guidance.
+author: sentinel-detections-au
+version: 1.0.0
+severity: Medium
+status: production
+targets:
+  - sentinel
+  - defender_xdr
+query_frequency: PT1H
+query_period: PT1H
+trigger_operator: gt
+trigger_threshold: 0
+tactics:
+  - Execution
+techniques:
+  - T1059.001
+ism_controls:
+  - ISM-1621
+  - ISM-0580
+  - ISM-1405
+advisories:
+  - acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques
+tables:
+  - DeviceProcessEvents
+required_data_connectors:
+  - connector_id: MicrosoftThreatProtection
+    data_types:
+      - DeviceProcessEvents
+entity_mappings:
+  - entity_type: Host
+    field_mappings:
+      - identifier: HostName
+        column_name: DeviceName
+  - entity_type: Account
+    field_mappings:
+      - identifier: Name
+        column_name: AccountName
+  - entity_type: Process
+    field_mappings:
+      - identifier: CommandLine
+        column_name: ProcessCommandLine
+defender_xdr:
+  period: 1H
+  category: Execution
+  recommended_actions: >-
+    Review the decoded PowerShell payload and parent process lineage on the host, confirm
+    whether the script belongs to an authorised administrative workflow, and isolate the
+    device if malicious activity is confirmed.
+  impacted_assets:
+    - type: device
+      identifier: deviceId
+      column: DeviceId
+query: |
+  DeviceProcessEvents
+  | where FileName in~ ("powershell.exe", "pwsh.exe")
+  | where ProcessCommandLine has_any ("-enc ", "-encodedcommand ", " -e ", " -ec ")
+  | where not(InitiatingProcessFileName in~ ("ccmexec.exe", "intunemanagementextension.exe"))
+  | project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine, ReportId
+false_positives:
+  - Legitimate endpoint management or software deployment scripts invoking encoded PowerShell commands.
+references:
+  - https://www.cyber.gov.au/advisory/identifying-and-mitigating-living-off-the-land-techniques
+  - https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-deviceprocessevents-table

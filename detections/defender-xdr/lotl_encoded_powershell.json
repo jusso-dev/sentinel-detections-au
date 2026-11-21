@@ -1,0 +1,31 @@
+{
+  "@odata.type": "#microsoft.graph.security.detectionRule",
+  "displayName": "Encoded PowerShell Execution via Living off the Land",
+  "isEnabled": true,
+  "queryCondition": {
+    "queryText": "DeviceProcessEvents\n| where FileName in~ (\"powershell.exe\", \"pwsh.exe\")\n| where ProcessCommandLine has_any (\"-enc \", \"-encodedcommand \", \" -e \", \" -ec \")\n| where not(InitiatingProcessFileName in~ (\"ccmexec.exe\", \"intunemanagementextension.exe\"))\n| project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine, ReportId"
+  },
+  "schedule": {
+    "period": "1H"
+  },
+  "detectionAction": {
+    "alertTemplate": {
+      "title": "Encoded PowerShell Execution via Living off the Land",
+      "description": "Detects powershell.exe or pwsh.exe launched with encoded command flags, a common living off the land execution technique highlighted in ASD/ACSC joint guidance. ISM controls: ISM-1621, ISM-0580, ISM-1405. Advisories: acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques.",
+      "severity": "medium",
+      "category": "Execution",
+      "mitreTechniques": [
+        "T1059.001"
+      ],
+      "recommendedActions": "Review the decoded PowerShell payload and parent process lineage on the host, confirm whether the script belongs to an authorised administrative workflow, and isolate the device if malicious activity is confirmed (ISM controls: ISM-1621, ISM-0580, ISM-1405; Advisories: acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques).",
+      "impactedAssets": [
+        {
+          "@odata.type": "#microsoft.graph.security.impactedDeviceAsset",
+          "identifier": "deviceId"
+        }
+      ]
+    },
+    "organizationalScope": null,
+    "responseActions": []
+  }
+}

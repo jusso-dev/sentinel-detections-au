@@ -31,5 +31,8 @@ jobs:
       - name: Run repository validation checks
         run: python -m pipeline.validate
 
+      - name: Verify dual-target rendered detection outputs
+        run: python -m pipeline.render --check
+
       - name: Run unit tests
         run: pytest -v
