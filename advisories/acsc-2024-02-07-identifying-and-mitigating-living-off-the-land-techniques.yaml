@@ -43,6 +43,18 @@ linked_detections:
   - detections/rules/lotl_encoded_powershell.yaml
   - detections/rules/lotl_ntdsutil_ifm_dump.yaml
   - detections/rules/lotl_vssadmin_shadow_delete.yaml
+  - detections/rules/lotl_certutil_remote_download.yaml
+  - detections/rules/lotl_netsh_portproxy_tunnel.yaml
+  - detections/rules/lotl_schtasks_suspicious_persistence.yaml
+  - detections/rules/lotl_wmic_remote_process_create.yaml
+  - hunting/lotl/lotl_hunt_ad_discovery_commands.yaml
+  - hunting/lotl/lotl_hunt_bitsadmin_transfers.yaml
+  - hunting/lotl/lotl_hunt_mshta_remote_execution.yaml
+  - hunting/lotl/lotl_hunt_reg_sam_system_save.yaml
+  - hunting/lotl/lotl_hunt_wevtutil_log_clearing.yaml
+  - hunting/lotl/lotl_hunt_sc_remote_service_creation.yaml
+  - hunting/lotl/lotl_hunt_curl_wget_suspicious_staging.yaml
+  - hunting/lotl/lotl_hunt_ssh_remote_port_forward.yaml
 attribution: >-
   Summarised independently from official ASD ACSC guidance (Commonwealth of Australia).
   Refer to the linked cyber.gov.au publication for authoritative text.

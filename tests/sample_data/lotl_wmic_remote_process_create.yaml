@@ -1,0 +1,24 @@
+rule: detections/rules/lotl_wmic_remote_process_create.yaml
+table: DeviceProcessEvents
+positive_cases:
+  - name: WMIC remotely spawning PowerShell on target server
+    rows:
+      - Timestamp: "2026-10-16T04:00:00Z"
+        DeviceId: "00000000-0000-0000-0000-000000000021"
+        DeviceName: "admin-au-01.example.local"
+        AccountName: "ops_admin"
+        InitiatingProcessFileName: "cmd.exe"
+        FileName: "wmic.exe"
+        ProcessCommandLine: "wmic.exe /node:10.0.10.50 process call create \"powershell.exe -enc SQBFAFgA\""
+        ReportId: 21001
+negative_cases:
+  - name: WMIC querying local OS caption
+    rows:
+      - Timestamp: "2026-10-16T04:05:00Z"
+        DeviceId: "00000000-0000-0000-0000-000000000021"
+        DeviceName: "admin-au-01.example.local"
+        AccountName: "ops_admin"
+        InitiatingProcessFileName: "cmd.exe"
+        FileName: "wmic.exe"
+        ProcessCommandLine: "wmic.exe os get caption"
+        ReportId: 21002

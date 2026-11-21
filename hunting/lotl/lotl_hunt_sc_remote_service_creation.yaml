@@ -1,0 +1,31 @@
+id: 7e5f1a2c-9c7b-4e4e-8d3b-2b1c4d5e6f06
+name: Living off the Land Remote Service Creation via SC.exe
+description: >-
+  Hunts for sc.exe creating or reconfiguring Windows services on local or remote systems
+  to execute payloads or establish persistence.
+author: sentinel-detections-au
+tactics:
+  - Persistence
+  - LateralMovement
+techniques:
+  - T1543.003
+  - T1021.002
+ism_controls:
+  - ISM-0580
+  - ISM-1405
+  - ISM-1657
+advisories:
+  - acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques
+tables:
+  - DeviceProcessEvents
+query: |
+  DeviceProcessEvents
+  | where FileName =~ "sc.exe"
+  | where ProcessCommandLine has_any ("create", "config")
+  | where ProcessCommandLine has_any ("binpath=", "\\\\")
+  | project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, ProcessCommandLine
+false_positives:
+  - Endpoint software deployment or Windows service maintenance scripts.
+references:
+  - https://www.cyber.gov.au/advisory/identifying-and-mitigating-living-off-the-land-techniques
+  - https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-deviceprocessevents-table

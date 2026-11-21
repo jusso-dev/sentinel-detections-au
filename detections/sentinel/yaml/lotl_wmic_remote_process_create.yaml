@@ -1,0 +1,44 @@
+id: 6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e21
+name: Remote Process Creation via WMIC
+description: 'Detects wmic.exe executing process call create against remote hosts (/node:), a living off
+  the land lateral movement and execution technique covered in ASD/ACSC joint guidance. ISM controls:
+  ISM-0580, ISM-1405, ISM-1621, ISM-1657. Advisories: acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques.'
+severity: High
+status: Available
+kind: Scheduled
+queryFrequency: PT1H
+queryPeriod: PT1H
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- Execution
+relevantTechniques:
+- T1047
+query: 'DeviceProcessEvents
+
+  | where FileName =~ "wmic.exe"
+
+  | where ProcessCommandLine has_all ("/node:", "process", "call", "create")
+
+  | project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine,
+  ReportId
+
+  '
+version: 1.0.0
+requiredDataConnectors:
+- connectorId: MicrosoftThreatProtection
+  dataTypes:
+  - DeviceProcessEvents
+entityMappings:
+- entityType: Host
+  fieldMappings:
+  - identifier: HostName
+    columnName: DeviceName
+- entityType: Account
+  fieldMappings:
+  - identifier: Name
+    columnName: AccountName
+- entityType: Process
+  fieldMappings:
+  - identifier: CommandLine
+    columnName: ProcessCommandLine

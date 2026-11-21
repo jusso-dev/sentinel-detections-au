@@ -1,0 +1,31 @@
+{
+  "@odata.type": "#microsoft.graph.security.detectionRule",
+  "displayName": "Remote Process Creation via WMIC",
+  "isEnabled": true,
+  "queryCondition": {
+    "queryText": "DeviceProcessEvents\n| where FileName =~ \"wmic.exe\"\n| where ProcessCommandLine has_all (\"/node:\", \"process\", \"call\", \"create\")\n| project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine, ReportId"
+  },
+  "schedule": {
+    "period": "1H"
+  },
+  "detectionAction": {
+    "alertTemplate": {
+      "title": "Remote Process Creation via WMIC",
+      "description": "Detects wmic.exe executing process call create against remote hosts (/node:), a living off the land lateral movement and execution technique covered in ASD/ACSC joint guidance. ISM controls: ISM-0580, ISM-1405, ISM-1621, ISM-1657. Advisories: acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques.",
+      "severity": "high",
+      "category": "Execution",
+      "mitreTechniques": [
+        "T1047"
+      ],
+      "recommendedActions": "Verify whether the initiating account is authorised for remote WMI administration and inspect the target host for spawned processes (ISM controls: ISM-0580, ISM-1405, ISM-1621, ISM-1657; Advisories: acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques).",
+      "impactedAssets": [
+        {
+          "@odata.type": "#microsoft.graph.security.impactedDeviceAsset",
+          "identifier": "deviceId"
+        }
+      ]
+    },
+    "organizationalScope": null,
+    "responseActions": []
+  }
+}

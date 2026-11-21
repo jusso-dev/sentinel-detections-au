@@ -1,0 +1,29 @@
+id: 7e5f1a2c-9c7b-4e4e-8d3b-2b1c4d5e6f03
+name: Living off the Land Mshta Remote or Inline Script Execution
+description: >-
+  Hunts for mshta.exe executing remote HTTP/HTTPS HTML applications or inline JavaScript
+  and VBScript payloads in Defender XDR DeviceProcessEvents.
+author: sentinel-detections-au
+tactics:
+  - DefenseEvasion
+techniques:
+  - T1218.005
+ism_controls:
+  - ISM-0580
+  - ISM-0843
+  - ISM-1405
+  - ISM-1621
+advisories:
+  - acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques
+tables:
+  - DeviceProcessEvents
+query: |
+  DeviceProcessEvents
+  | where FileName =~ "mshta.exe"
+  | where ProcessCommandLine has_any ("http://", "https://", "javascript:", "vbscript:", "about:")
+  | project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, ProcessCommandLine
+false_positives:
+  - Legacy enterprise intranet applications invoking HTA launchers.
+references:
+  - https://www.cyber.gov.au/advisory/identifying-and-mitigating-living-off-the-land-techniques
+  - https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-deviceprocessevents-table

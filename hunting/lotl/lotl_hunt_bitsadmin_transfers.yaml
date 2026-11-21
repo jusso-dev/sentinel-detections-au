@@ -1,0 +1,30 @@
+id: 7e5f1a2c-9c7b-4e4e-8d3b-2b1c4d5e6f02
+name: Living off the Land BITSAdmin Transfer Activity
+description: >-
+  Hunts for bitsadmin.exe or PowerShell Start-BitsTransfer downloading external payloads or
+  persisting background transfer jobs in Defender XDR telemetry.
+author: sentinel-detections-au
+tactics:
+  - Persistence
+  - CommandAndControl
+techniques:
+  - T1197
+  - T1105
+ism_controls:
+  - ISM-0580
+  - ISM-0843
+  - ISM-1405
+advisories:
+  - acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques
+tables:
+  - DeviceProcessEvents
+query: |
+  DeviceProcessEvents
+  | where (FileName =~ "bitsadmin.exe" and ProcessCommandLine has_any ("/transfer", "/addfile", "/setnotifycmdline"))
+      or (FileName in~ ("powershell.exe", "pwsh.exe") and ProcessCommandLine has "Start-BitsTransfer")
+  | project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine
+false_positives:
+  - Software update utilities using Background Intelligent Transfer Service for package downloads.
+references:
+  - https://www.cyber.gov.au/advisory/identifying-and-mitigating-living-off-the-land-techniques
+  - https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-deviceprocessevents-table

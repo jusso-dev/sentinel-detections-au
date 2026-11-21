@@ -1,0 +1,48 @@
+id: 6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e18
+name: Certutil Abuse for Remote File Download or Decoding
+description: 'Detects certutil.exe invoked with urlcache, split or decode flags to retrieve remote payloads
+  or decode staged files, a living off the land technique detailed in ASD/ACSC joint guidance. ISM controls:
+  ISM-0580, ISM-0843, ISM-1405, ISM-1621. Advisories: acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques.'
+severity: High
+status: Available
+kind: Scheduled
+queryFrequency: PT1H
+queryPeriod: PT1H
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- CommandAndControl
+relevantTechniques:
+- T1105
+query: 'DeviceProcessEvents
+
+  | where FileName =~ "certutil.exe"
+
+  | where ProcessCommandLine has_any ("-urlcache", "/urlcache", "-verifyctl", "/verifyctl", "-decode",
+  "/decode", "-decodehex")
+
+  | where ProcessCommandLine has_any ("http://", "https://", "ftp://", ".exe", ".dll", ".ps1", ".bat",
+  ".vbs")
+
+  | project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine,
+  ReportId
+
+  '
+version: 1.0.0
+requiredDataConnectors:
+- connectorId: MicrosoftThreatProtection
+  dataTypes:
+  - DeviceProcessEvents
+entityMappings:
+- entityType: Host
+  fieldMappings:
+  - identifier: HostName
+    columnName: DeviceName
+- entityType: Account
+  fieldMappings:
+  - identifier: Name
+    columnName: AccountName
+- entityType: Process
+  fieldMappings:
+  - identifier: CommandLine
+    columnName: ProcessCommandLine

@@ -1,0 +1,68 @@
+id: 6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e18
+name: Certutil Abuse for Remote File Download or Decoding
+description: >-
+  Detects certutil.exe invoked with urlcache, split or decode flags to retrieve remote
+  payloads or decode staged files, a living off the land technique detailed in ASD/ACSC
+  joint guidance.
+author: sentinel-detections-au
+version: 1.0.0
+severity: High
+status: production
+targets:
+  - sentinel
+  - defender_xdr
+query_frequency: PT1H
+query_period: PT1H
+trigger_operator: gt
+trigger_threshold: 0
+tactics:
+  - CommandAndControl
+techniques:
+  - T1105
+ism_controls:
+  - ISM-0580
+  - ISM-0843
+  - ISM-1405
+  - ISM-1621
+advisories:
+  - acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques
+tables:
+  - DeviceProcessEvents
+required_data_connectors:
+  - connector_id: MicrosoftThreatProtection
+    data_types:
+      - DeviceProcessEvents
+entity_mappings:
+  - entity_type: Host
+    field_mappings:
+      - identifier: HostName
+        column_name: DeviceName
+  - entity_type: Account
+    field_mappings:
+      - identifier: Name
+        column_name: AccountName
+  - entity_type: Process
+    field_mappings:
+      - identifier: CommandLine
+        column_name: ProcessCommandLine
+defender_xdr:
+  period: 1H
+  category: CommandAndControl
+  recommended_actions: >-
+    Inspect the downloaded URL or decoded output file, verify parent process activity, and
+    quarantine any unauthorised binaries staged by certutil.
+  impacted_assets:
+    - type: device
+      identifier: deviceId
+      column: DeviceId
+query: |
+  DeviceProcessEvents
+  | where FileName =~ "certutil.exe"
+  | where ProcessCommandLine has_any ("-urlcache", "/urlcache", "-verifyctl", "/verifyctl", "-decode", "/decode", "-decodehex")
+  | where ProcessCommandLine has_any ("http://", "https://", "ftp://", ".exe", ".dll", ".ps1", ".bat", ".vbs")
+  | project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine, ReportId
+false_positives:
+  - Rare PKI administration scripts retrieving certificate revocation lists via certutil.
+references:
+  - https://www.cyber.gov.au/advisory/identifying-and-mitigating-living-off-the-land-techniques
+  - https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-deviceprocessevents-table
