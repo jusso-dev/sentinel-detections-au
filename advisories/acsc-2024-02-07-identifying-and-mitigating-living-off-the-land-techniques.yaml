@@ -1,0 +1,49 @@
+id: acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques
+title: Identifying and Mitigating Living off the Land Techniques
+date: "2024-02-07"
+source: advisories
+link: https://www.cyber.gov.au/advisory/identifying-and-mitigating-living-off-the-land-techniques
+status: reviewed
+needs_human_review: false
+summary: >-
+  Joint international guidance co-authored by ASD's ACSC and partner agencies detailing how
+  advanced persistent threat actors abuse built-in administrative tools, scripting engines and
+  valid accounts to evade conventional malware detection. For Microsoft Defender XDR and
+  Microsoft Sentinel defenders, coverage centres on process creation telemetry, command-line
+  auditing, PowerShell logging, credential access monitoring and baselining native utilities.
+attack_techniques:
+  - T1059.001
+  - T1059.003
+  - T1003.003
+  - T1021.002
+  - T1047
+  - T1053.005
+  - T1078
+  - T1087.002
+  - T1090
+  - T1105
+affected_products:
+  - Microsoft Windows
+  - Active Directory
+  - Linux
+  - macOS
+  - Network edge appliances
+iocs:
+  published: false
+  notes: >-
+    Behavioural guidance focused on living off the land TTPs rather than static network or
+    file indicators.
+ism_controls:
+  - ISM-0580
+  - ISM-0843
+  - ISM-1405
+  - ISM-1621
+  - ISM-1657
+linked_detections: []
+attribution: >-
+  Summarised independently from official ASD ACSC guidance (Commonwealth of Australia).
+  Refer to the linked cyber.gov.au publication for authoritative text.
+extraction_metadata:
+  extracted_at: "2026-11-21"
+  method: manual
+  llm_assisted: false
