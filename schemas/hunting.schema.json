@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jusso-dev/sentinel-detections-au/schemas/hunting.schema.json",
+  "title": "Hunting Query",
+  "description": "Schema for Microsoft Sentinel and Defender XDR threat hunting KQL queries.",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "description",
+    "tactics",
+    "techniques",
+    "ism_controls",
+    "tables",
+    "query",
+    "references"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 160
+    },
+    "description": {
+      "type": "string",
+      "minLength": 20
+    },
+    "author": { "type": "string" },
+    "tactics": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "Reconnaissance",
+          "ResourceDevelopment",
+          "InitialAccess",
+          "Execution",
+          "Persistence",
+          "PrivilegeEscalation",
+          "DefenseEvasion",
+          "CredentialAccess",
+          "Discovery",
+          "LateralMovement",
+          "Collection",
+          "CommandAndControl",
+          "Exfiltration",
+          "Impact"
+        ]
+      }
+    },
+    "techniques": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^T\\d{4}(?:\\.\\d{3})?$"
+      }
+    },
+    "ism_controls": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^ISM-\\d{4}$"
+      }
+    },
+    "advisories": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string" }
+    },
+    "tables": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string" }
+    },
+    "query": {
+      "type": "string",
+      "minLength": 15
+    },
+    "false_positives": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "references": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^https://"
+      }
+    }
+  }
+}
