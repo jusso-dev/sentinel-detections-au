@@ -96,7 +96,7 @@ jobs:
             gh pr create \
               --base main \
               --head "$BRANCH" \
-              --title "chore(advisories): review new ASD/ACSC draft advisories" \
+              --title "[Review Required] chore(advisories): new ASD/ACSC draft advisories" \
               --body-file /tmp/advisory-pr-body.md
           else
             gh pr comment "$EXISTING_PR" --body-file /tmp/advisory-pr-body.md

@@ -20,6 +20,7 @@ from urllib.parse import urlparse
 import yaml
 
 from pipeline.checks.style import EM_DASH, EMOJI_RE
+from pipeline.extractor import extract_with_optional_llm, load_default_matrix
 
 DEFAULT_FEEDS: dict[str, str] = {
     "advisories": "https://www.cyber.gov.au/rss/advisories",
@@ -157,11 +158,22 @@ def load_existing_index(advisories_dir: Path) -> tuple[set[str], set[str]]:
     return seen_ids, seen_links
 
 
-def build_draft_record(item: FeedItem, today: str | None = None) -> dict[str, Any]:
+def build_draft_record(
+    item: FeedItem,
+    today: str | None = None,
+    page_text: str | None = None,
+    matrix: dict[str, Any] | None = None,
+    llm_provider: Callable[[str], str] | None = None,
+) -> dict[str, Any]:
     """Construct a schema-valid draft advisory YAML mapping for human review."""
     adv_id = make_advisory_id(item.date, item.title, item.link)
     year = item.date[:4]
     extracted_at = today or datetime.now(UTC).strftime("%Y-%m-%d")
+
+    source_text = f"{item.title}\n{item.description}"
+    if page_text:
+        source_text = f"{source_text}\n{clean_plain_text(page_text)}"
+    extracted = extract_with_optional_llm(source_text, matrix=matrix, llm_provider=llm_provider)
 
     summary = (
         f"Automated draft record for ASD ACSC {item.source[:-1]} '{item.title}' "
@@ -170,7 +182,7 @@ def build_draft_record(item: FeedItem, today: str | None = None) -> dict[str, An
         f"and mapping Microsoft Sentinel and Defender XDR detection coverage."
     )
 
-    return {
+    record: dict[str, Any] = {
         "id": adv_id,
         "title": item.title,
         "date": item.date,
@@ -179,15 +191,9 @@ def build_draft_record(item: FeedItem, today: str | None = None) -> dict[str, An
         "status": "draft",
         "needs_human_review": True,
         "summary": summary,
-        "attack_techniques": [],
-        "affected_products": [],
-        "iocs": {
-            "published": False,
-            "notes": (
-                "Pending analyst review of the canonical cyber.gov.au page to confirm "
-                "whether public indicators of compromise were released."
-            ),
-        },
+        "attack_techniques": extracted.attack_techniques,
+        "affected_products": extracted.affected_products,
+        "iocs": extracted.iocs,
         "ism_controls": [],
         "linked_detections": [],
         "attribution": (
@@ -197,27 +203,46 @@ def build_draft_record(item: FeedItem, today: str | None = None) -> dict[str, An
         ),
         "extraction_metadata": {
             "extracted_at": extracted_at,
-            "method": "deterministic",
-            "llm_assisted": False,
-            "notes": "Created automatically by pipeline.watcher; requires human review.",
+            "method": extracted.method,
+            "llm_assisted": extracted.llm_assisted,
+            "notes": extracted.notes,
         },
     }
+    if extracted.cves:
+        record["cves"] = extracted.cves
+    return record
 
 
 def render_pr_body(created: list[dict[str, Any]]) -> str:
-    """Render a Pull Request body with a human review checklist."""
+    """Render a Pull Request body with a mandatory human review banner and checklist."""
+    any_llm = any(
+        (rec.get("extraction_metadata") or {}).get("llm_assisted", False) for rec in created
+    )
     lines = [
-        "## New ASD/ACSC Advisory Draft Records",
+        "## [HUMAN REVIEW REQUIRED] New ASD/ACSC Advisory Draft Records",
         "",
         "This pull request was opened automatically by the daily advisory watcher workflow.",
         "Every draft record is flagged with `needs_human_review: true` and must be reviewed",
         "by a human analyst before merging.",
-        "",
-        "### Draft records added",
-        "",
     ]
+    if any_llm:
+        lines.extend(
+            [
+                "",
+                "> **LLM assist notice:** One or more draft records include optional LLM-assisted",
+                "> technique or product suggestions (`method: deterministic_plus_llm`). Verify",
+                "> every suggested field against the official cyber.gov.au publication.",
+            ]
+        )
+    lines.extend(["", "### Draft records added", ""])
     for rec in created:
-        lines.append(f"- `{rec['id']}` ({rec['date']}): [{rec['title']}]({rec['link']})")
+        meta = rec.get("extraction_metadata") or {}
+        method = meta.get("method", "deterministic")
+        techs = ", ".join(rec.get("attack_techniques") or []) or "none extracted"
+        lines.append(
+            f"- `{rec['id']}` ({rec['date']}, `{method}`, ATT&CK: {techs}): "
+            f"[{rec['title']}]({rec['link']})"
+        )
     lines.extend(
         [
             "",
@@ -241,12 +266,15 @@ def run_watcher(
     max_new: int = 5,
     delay_seconds: float = 1.5,
     dry_run: bool = False,
+    fetch_pages: bool = False,
     fetch_fn: Callable[[str], str] = fetch_url,
     sleep_fn: Callable[[float], None] = time.sleep,
+    llm_provider: Callable[[str], str] | None = None,
 ) -> list[dict[str, Any]]:
     """Fetch feeds, deduplicate against existing advisories, and write draft records."""
     feed_map = feeds or DEFAULT_FEEDS
     seen_ids, seen_links = load_existing_index(advisories_dir)
+    matrix = load_default_matrix(advisories_dir.resolve().parent)
     created: list[dict[str, Any]] = []
 
     advisories_dir.mkdir(parents=True, exist_ok=True)
@@ -265,7 +293,21 @@ def run_watcher(
         if item.link in seen_links or adv_id in seen_ids:
             continue
 
-        record = build_draft_record(item)
+        page_text: str | None = None
+        if fetch_pages:
+            if delay_seconds > 0:
+                sleep_fn(delay_seconds)
+            try:
+                page_text = fetch_fn(item.link)
+            except Exception:
+                page_text = None
+
+        record = build_draft_record(
+            item,
+            page_text=page_text,
+            matrix=matrix,
+            llm_provider=llm_provider,
+        )
         if not dry_run:
             out_path = advisories_dir / f"{adv_id}.yaml"
             out_path.write_text(
