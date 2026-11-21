@@ -39,7 +39,8 @@ ism_controls:
   - ISM-1405
   - ISM-1621
   - ISM-1657
-linked_detections: []
+linked_detections:
+  - detections/rules/lotl_encoded_powershell.yaml
 attribution: >-
   Summarised independently from official ASD ACSC guidance (Commonwealth of Australia).
   Refer to the linked cyber.gov.au publication for authoritative text.
