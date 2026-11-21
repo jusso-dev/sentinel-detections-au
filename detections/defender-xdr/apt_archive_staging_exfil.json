@@ -1,0 +1,31 @@
+{
+  "@odata.type": "#microsoft.graph.security.detectionRule",
+  "displayName": "Password-Protected Archive Staging for Data Exfiltration",
+  "isEnabled": true,
+  "queryCondition": {
+    "queryText": "DeviceProcessEvents\n| where FileName in~ (\"7z.exe\", \"7za.exe\", \"rar.exe\", \"winrar.exe\", \"7z\")\n| where ProcessCommandLine has_any (\" -p\", \" -hp\", \" -v\")\n| where ProcessCommandLine has_any (\"\\\\temp\\\\\", \"\\\\programdata\\\\\", \"\\\\public\\\\\", \"/tmp/\", \"/dev/shm/\")\n| project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine, ReportId"
+  },
+  "schedule": {
+    "period": "1H"
+  },
+  "detectionAction": {
+    "alertTemplate": {
+      "title": "Password-Protected Archive Staging for Data Exfiltration",
+      "description": "Detects creation of password-protected or split archives via 7-Zip, WinRAR or tar inside temporary or staging folders, a common pre-exfiltration step in state-linked intrusions. ISM controls: ISM-0580, ISM-1405. Advisories: acsc-2026-10-09-chinese-state-linked-automated-tools.",
+      "severity": "medium",
+      "category": "Collection",
+      "mitreTechniques": [
+        "T1560.001"
+      ],
+      "recommendedActions": "Review the archived paths and check subsequent outbound network transfers from the host for signs of data exfiltration (ISM controls: ISM-0580, ISM-1405; Advisories: acsc-2026-10-09-chinese-state-linked-automated-tools).",
+      "impactedAssets": [
+        {
+          "@odata.type": "#microsoft.graph.security.impactedDeviceAsset",
+          "identifier": "deviceId"
+        }
+      ]
+    },
+    "organizationalScope": null,
+    "responseActions": []
+  }
+}

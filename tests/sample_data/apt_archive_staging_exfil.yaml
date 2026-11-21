@@ -1,0 +1,24 @@
+rule: detections/rules/apt_archive_staging_exfil.yaml
+table: DeviceProcessEvents
+positive_cases:
+  - name: 7-Zip creating password-protected archive in ProgramData
+    rows:
+      - Timestamp: "2026-10-15T09:00:00Z"
+        DeviceId: "00000000-0000-0000-0000-000000000009"
+        DeviceName: "file-au-01.example.local"
+        AccountName: "svc_ops"
+        InitiatingProcessFileName: "cmd.exe"
+        FileName: "7z.exe"
+        ProcessCommandLine: "7z.exe a -pSecretPass C:\\ProgramData\\stage.7z C:\\Finance\\*"
+        ReportId: 9001
+negative_cases:
+  - name: 7-Zip extracting archive in user Downloads without password flag
+    rows:
+      - Timestamp: "2026-10-15T09:05:00Z"
+        DeviceId: "00000000-0000-0000-0000-000000000009"
+        DeviceName: "file-au-01.example.local"
+        AccountName: "jdoe"
+        InitiatingProcessFileName: "explorer.exe"
+        FileName: "7z.exe"
+        ProcessCommandLine: "7z.exe x C:\\Users\\jdoe\\Downloads\\report.zip"
+        ReportId: 9002

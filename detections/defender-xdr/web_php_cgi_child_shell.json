@@ -1,0 +1,32 @@
+{
+  "@odata.type": "#microsoft.graph.security.detectionRule",
+  "displayName": "PHP Runtime Spawning Interactive Shell or Download Utility",
+  "isEnabled": true,
+  "queryCondition": {
+    "queryText": "DeviceProcessEvents\n| where InitiatingProcessFileName has_any (\"php\", \"php-cgi\", \"php-fpm\")\n| where FileName in~ (\"sh\", \"bash\", \"dash\", \"cmd.exe\", \"powershell.exe\", \"curl\", \"wget\", \"python3\", \"perl\")\n| project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine, ReportId"
+  },
+  "schedule": {
+    "period": "1H"
+  },
+  "detectionAction": {
+    "alertTemplate": {
+      "title": "PHP Runtime Spawning Interactive Shell or Download Utility",
+      "description": "Detects PHP interpreter or PHP-FPM/CGI worker processes launching OS shells or network download utilities, indicating exploitation of critical PHP vulnerabilities. ISM controls: ISM-0580, ISM-1144, ISM-1405, ISM-1690. Advisories: acsc-2026-10-21-php-critical-vulnerabilities, acsc-2026-11-17-vulnerabilities-patch-protect-prevent.",
+      "severity": "high",
+      "category": "Execution",
+      "mitreTechniques": [
+        "T1190",
+        "T1059.004"
+      ],
+      "recommendedActions": "Check PHP version and patch status immediately, inspect HTTP access logs for exploit payloads, and review the host for persistence (ISM controls: ISM-0580, ISM-1144, ISM-1405, ISM-1690; Advisories: acsc-2026-10-21-php-critical-vulnerabilities, acsc-2026-11-17-vulnerabilities-patch-protect-prevent).",
+      "impactedAssets": [
+        {
+          "@odata.type": "#microsoft.graph.security.impactedDeviceAsset",
+          "identifier": "deviceId"
+        }
+      ]
+    },
+    "organizationalScope": null,
+    "responseActions": []
+  }
+}

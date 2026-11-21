@@ -1,0 +1,88 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspace": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Log Analytics workspace where Microsoft Sentinel is enabled."
+      }
+    }
+  },
+  "resources": [
+    {
+      "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces/providers', parameters('workspace'), 'Microsoft.SecurityInsights'), '/alertRules/6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e13')]",
+      "name": "[concat(parameters('workspace'), '/Microsoft.SecurityInsights/6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e13')]",
+      "type": "Microsoft.OperationalInsights/workspaces/providers/alertRules",
+      "kind": "Scheduled",
+      "apiVersion": "2023-11-01",
+      "properties": {
+        "displayName": "Suspicious Node.js or Python Developer Runtime Spawning Obfuscated Shell",
+        "description": "Detects Node.js, npm or Python developer runtimes executing remote download or encoded shell commands, matching WaterPlum (Contagious Interview) tradecraft targeting IT staff. ISM controls: ISM-0580, ISM-0843, ISM-1405, ISM-1621. Advisories: acsc-2026-09-22-north-korean-waterplum-contagious-interview.",
+        "severity": "High",
+        "enabled": true,
+        "query": "DeviceProcessEvents\n| where InitiatingProcessFileName in~ (\"node.exe\", \"node\", \"npm\", \"npx\", \"python.exe\", \"python3\")\n| where FileName in~ (\"powershell.exe\", \"pwsh.exe\", \"cmd.exe\", \"sh\", \"bash\", \"curl\", \"wget\")\n| where ProcessCommandLine has_any (\"-enc\", \"base64\", \"eval(\", \"curl \", \"wget \", \"http://\", \"https://\")\n| where ProcessCommandLine has_any (\"| sh\", \"| bash\", \"iex\", \"invoke-expression\", \"-enc\", \"base64\")\n| project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine, ReportId",
+        "queryFrequency": "PT1H",
+        "queryPeriod": "PT1H",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 0,
+        "suppressionDuration": "PT5H",
+        "suppressionEnabled": false,
+        "tactics": [
+          "Execution"
+        ],
+        "techniques": [
+          "T1059"
+        ],
+        "incidentConfiguration": {
+          "createIncident": true,
+          "groupingConfiguration": {
+            "enabled": true,
+            "reopenClosedIncident": false,
+            "lookbackDuration": "PT5H",
+            "matchingMethod": "AllEntities",
+            "groupByEntities": [],
+            "groupByAlertDetails": [],
+            "groupByCustomDetails": []
+          }
+        },
+        "eventGroupingSettings": {
+          "aggregationKind": "SingleAlert"
+        },
+        "subTechniques": [
+          "T1059.007",
+          "T1059.006"
+        ],
+        "entityMappings": [
+          {
+            "entityType": "Host",
+            "fieldMappings": [
+              {
+                "identifier": "HostName",
+                "columnName": "DeviceName"
+              }
+            ]
+          },
+          {
+            "entityType": "Account",
+            "fieldMappings": [
+              {
+                "identifier": "Name",
+                "columnName": "AccountName"
+              }
+            ]
+          },
+          {
+            "entityType": "Process",
+            "fieldMappings": [
+              {
+                "identifier": "CommandLine",
+                "columnName": "ProcessCommandLine"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

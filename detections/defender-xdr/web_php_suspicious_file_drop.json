@@ -1,0 +1,31 @@
+{
+  "@odata.type": "#microsoft.graph.security.detectionRule",
+  "displayName": "Suspicious PHP Web Shell Script Dropped into Webroot",
+  "isEnabled": true,
+  "queryCondition": {
+    "queryText": "DeviceFileEvents\n| where ActionType in (\"FileCreated\", \"FileModified\")\n| where FolderPath has_any (\"/var/www/\", \"/srv/www/\", \"\\\\inetpub\\\\wwwroot\\\\\", \"/usr/share/nginx/html/\")\n| where FileName endswith \".php\" or FileName endswith \".phtml\" or FileName endswith \".phar\"\n| where InitiatingProcessFileName has_any (\"php\", \"httpd\", \"apache2\", \"nginx\", \"w3wp.exe\")\n| project Timestamp, DeviceId, DeviceName, InitiatingProcessFileName, FolderPath, FileName, SHA256, ReportId"
+  },
+  "schedule": {
+    "period": "1H"
+  },
+  "detectionAction": {
+    "alertTemplate": {
+      "title": "Suspicious PHP Web Shell Script Dropped into Webroot",
+      "description": "Detects creation or modification of PHP or executable script files inside standard webroot directories by web server or PHP processes. ISM controls: ISM-0580, ISM-1144, ISM-1405. Advisories: acsc-2026-10-21-php-critical-vulnerabilities.",
+      "severity": "high",
+      "category": "Persistence",
+      "mitreTechniques": [
+        "T1505.003"
+      ],
+      "recommendedActions": "Retrieve and analyse the newly written script file, verify whether it matches an approved deployment pipeline, and remove unauthorised web shells (ISM controls: ISM-0580, ISM-1144, ISM-1405; Advisories: acsc-2026-10-21-php-critical-vulnerabilities).",
+      "impactedAssets": [
+        {
+          "@odata.type": "#microsoft.graph.security.impactedDeviceAsset",
+          "identifier": "deviceId"
+        }
+      ]
+    },
+    "organizationalScope": null,
+    "responseActions": []
+  }
+}

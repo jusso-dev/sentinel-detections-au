@@ -3,7 +3,7 @@ title: Critical vulnerabilities in Citrix NetScaler ADC and Citrix NetScaler Gat
 date: "2026-10-01"
 source: alerts
 link: https://www.cyber.gov.au/alert/critical-vulnerabilities-in-citrix-netscaler-adc-and-citrix-netscaler-gateway-products
-status: reviewed
+status: mapped
 needs_human_review: false
 summary: >-
   High-priority ASD's ACSC alert warning organisations to patch actively exploited critical
@@ -29,7 +29,9 @@ ism_controls:
   - ISM-1690
   - ISM-0580
   - ISM-1405
-linked_detections: []
+linked_detections:
+  - detections/rules/edge_citrix_webshell_followup.yaml
+  - detections/rules/edge_fortinet_vpn_bruteforce_followup.yaml
 attribution: >-
   Summarised independently from official ASD ACSC alert (Commonwealth of Australia 2026).
   Refer to the linked cyber.gov.au publication for authoritative text.

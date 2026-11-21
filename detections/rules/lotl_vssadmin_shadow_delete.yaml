@@ -1,0 +1,68 @@
+id: 6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e03
+name: Volume Shadow Copy Deletion via Native Utilities
+description: >-
+  Detects deletion of Windows Volume Shadow Copies via vssadmin, wmic or PowerShell to
+  inhibit system recovery during ransomware or destructive post-exploitation activity.
+author: sentinel-detections-au
+version: 1.0.0
+severity: High
+status: production
+targets:
+  - sentinel
+  - defender_xdr
+query_frequency: PT1H
+query_period: PT1H
+trigger_operator: gt
+trigger_threshold: 0
+tactics:
+  - Impact
+techniques:
+  - T1490
+ism_controls:
+  - ISM-0580
+  - ISM-1405
+  - ISM-1511
+advisories:
+  - acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques
+  - acsc-2026-09-08-digital-camouflage-crypters-malware
+tables:
+  - DeviceProcessEvents
+required_data_connectors:
+  - connector_id: MicrosoftThreatProtection
+    data_types:
+      - DeviceProcessEvents
+entity_mappings:
+  - entity_type: Host
+    field_mappings:
+      - identifier: HostName
+        column_name: DeviceName
+  - entity_type: Account
+    field_mappings:
+      - identifier: Name
+        column_name: AccountName
+  - entity_type: Process
+    field_mappings:
+      - identifier: CommandLine
+        column_name: ProcessCommandLine
+defender_xdr:
+  period: 1H
+  category: Impact
+  recommended_actions: >-
+    Isolate the affected host immediately and investigate parent processes for ransomware or
+    destructive malware staging.
+  impacted_assets:
+    - type: device
+      identifier: deviceId
+      column: DeviceId
+query: |
+  DeviceProcessEvents
+  | where FileName in~ ("vssadmin.exe", "wmic.exe", "powershell.exe", "pwsh.exe")
+  | where (ProcessCommandLine has_all ("delete", "shadows"))
+      or (ProcessCommandLine has_all ("shadowcopy", "delete"))
+      or (ProcessCommandLine has_all ("Win32_ShadowCopy", "Delete"))
+  | project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine, ReportId
+false_positives:
+  - Approved backup software purging expired shadow copies during scheduled maintenance.
+references:
+  - https://www.cyber.gov.au/advisory/digital-camouflage-crypters-make-malware-undetectable
+  - https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-deviceprocessevents-table

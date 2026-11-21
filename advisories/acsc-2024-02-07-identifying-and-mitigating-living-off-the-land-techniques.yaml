@@ -3,7 +3,7 @@ title: Identifying and Mitigating Living off the Land Techniques
 date: "2024-02-07"
 source: advisories
 link: https://www.cyber.gov.au/advisory/identifying-and-mitigating-living-off-the-land-techniques
-status: reviewed
+status: mapped
 needs_human_review: false
 summary: >-
   Joint international guidance co-authored by ASD's ACSC and partner agencies detailing how
@@ -41,6 +41,8 @@ ism_controls:
   - ISM-1657
 linked_detections:
   - detections/rules/lotl_encoded_powershell.yaml
+  - detections/rules/lotl_ntdsutil_ifm_dump.yaml
+  - detections/rules/lotl_vssadmin_shadow_delete.yaml
 attribution: >-
   Summarised independently from official ASD ACSC guidance (Commonwealth of Australia).
   Refer to the linked cyber.gov.au publication for authoritative text.

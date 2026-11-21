@@ -1,0 +1,24 @@
+rule: detections/rules/crypter_defender_exclusion_tampering.yaml
+table: DeviceProcessEvents
+positive_cases:
+  - name: PowerShell adding C:\Users\Public to Defender ExclusionPath
+    rows:
+      - Timestamp: "2026-10-15T15:00:00Z"
+        DeviceId: "00000000-0000-0000-0000-000000000015"
+        DeviceName: "ws-au-15.example.local"
+        AccountName: "SYSTEM"
+        InitiatingProcessFileName: "cmd.exe"
+        FileName: "powershell.exe"
+        ProcessCommandLine: "powershell.exe -Command Add-MpPreference -ExclusionPath C:\\Users\\Public"
+        ReportId: 15001
+negative_cases:
+  - name: PowerShell checking Defender status read-only
+    rows:
+      - Timestamp: "2026-10-15T15:05:00Z"
+        DeviceId: "00000000-0000-0000-0000-000000000015"
+        DeviceName: "ws-au-15.example.local"
+        AccountName: "admin"
+        InitiatingProcessFileName: "explorer.exe"
+        FileName: "powershell.exe"
+        ProcessCommandLine: "powershell.exe Get-MpComputerStatus"
+        ReportId: 15002

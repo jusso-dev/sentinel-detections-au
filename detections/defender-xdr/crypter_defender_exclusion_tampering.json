@@ -1,0 +1,32 @@
+{
+  "@odata.type": "#microsoft.graph.security.detectionRule",
+  "displayName": "Microsoft Defender Antivirus Exclusion Added via Command Line",
+  "isEnabled": true,
+  "queryCondition": {
+    "queryText": "DeviceProcessEvents\n| where FileName in~ (\"powershell.exe\", \"pwsh.exe\", \"cmd.exe\", \"reg.exe\")\n| where ProcessCommandLine has_any (\"Add-MpPreference\", \"Set-MpPreference\", \"Windows Defender\\\\Exclusions\")\n| where ProcessCommandLine has_any (\"ExclusionPath\", \"ExclusionProcess\", \"ExclusionExtension\", \"DisableRealtimeMonitoring\", \"Exclusions\\\\Paths\")\n| project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine, ReportId"
+  },
+  "schedule": {
+    "period": "1H"
+  },
+  "detectionAction": {
+    "alertTemplate": {
+      "title": "Microsoft Defender Antivirus Exclusion Added via Command Line",
+      "description": "Detects PowerShell Add-MpPreference commands or registry modifications adding exclusions to Microsoft Defender Antivirus, commonly performed by crypted malware loaders to evade scans. ISM controls: ISM-0580, ISM-0843, ISM-1405, ISM-1621. Advisories: acsc-2026-09-08-digital-camouflage-crypters-malware.",
+      "severity": "high",
+      "category": "DefenseEvasion",
+      "mitreTechniques": [
+        "T1027",
+        "T1112"
+      ],
+      "recommendedActions": "Verify whether Microsoft Defender Antivirus Tamper Protection is enabled, remove any unauthorised exclusions, and scan excluded paths for crypted payloads (ISM controls: ISM-0580, ISM-0843, ISM-1405, ISM-1621; Advisories: acsc-2026-09-08-digital-camouflage-crypters-malware).",
+      "impactedAssets": [
+        {
+          "@odata.type": "#microsoft.graph.security.impactedDeviceAsset",
+          "identifier": "deviceId"
+        }
+      ]
+    },
+    "organizationalScope": null,
+    "responseActions": []
+  }
+}

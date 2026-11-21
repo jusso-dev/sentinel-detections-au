@@ -1,0 +1,24 @@
+rule: detections/rules/apt_lsass_memory_access.yaml
+table: DeviceProcessEvents
+positive_cases:
+  - name: Rundll32 invoking comsvcs.dll MiniDump against LSASS
+    rows:
+      - Timestamp: "2026-10-15T10:00:00Z"
+        DeviceId: "00000000-0000-0000-0000-000000000010"
+        DeviceName: "srv-au-02.example.local"
+        AccountName: "admin_ops"
+        InitiatingProcessFileName: "powershell.exe"
+        FileName: "rundll32.exe"
+        ProcessCommandLine: "rundll32.exe C:\\Windows\\System32\\comsvcs.dll, MiniDump 648 C:\\Temp\\dump.bin full"
+        ReportId: 10001
+negative_cases:
+  - name: Rundll32 launching print UI
+    rows:
+      - Timestamp: "2026-10-15T10:05:00Z"
+        DeviceId: "00000000-0000-0000-0000-000000000010"
+        DeviceName: "srv-au-02.example.local"
+        AccountName: "jdoe"
+        InitiatingProcessFileName: "explorer.exe"
+        FileName: "rundll32.exe"
+        ProcessCommandLine: "rundll32.exe printui.dll,PrintUIEntry /in"
+        ReportId: 10002

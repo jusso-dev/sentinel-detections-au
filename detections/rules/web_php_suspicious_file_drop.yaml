@@ -1,0 +1,63 @@
+id: 6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e08
+name: Suspicious PHP Web Shell Script Dropped into Webroot
+description: >-
+  Detects creation or modification of PHP or executable script files inside standard webroot
+  directories by web server or PHP processes.
+author: sentinel-detections-au
+version: 1.0.0
+severity: High
+status: production
+targets:
+  - sentinel
+  - defender_xdr
+query_frequency: PT1H
+query_period: PT1H
+trigger_operator: gt
+trigger_threshold: 0
+tactics:
+  - Persistence
+techniques:
+  - T1505.003
+ism_controls:
+  - ISM-0580
+  - ISM-1144
+  - ISM-1405
+advisories:
+  - acsc-2026-10-21-php-critical-vulnerabilities
+tables:
+  - DeviceFileEvents
+required_data_connectors:
+  - connector_id: MicrosoftThreatProtection
+    data_types:
+      - DeviceFileEvents
+entity_mappings:
+  - entity_type: Host
+    field_mappings:
+      - identifier: HostName
+        column_name: DeviceName
+  - entity_type: File
+    field_mappings:
+      - identifier: Name
+        column_name: FileName
+defender_xdr:
+  period: 1H
+  category: Persistence
+  recommended_actions: >-
+    Retrieve and analyse the newly written script file, verify whether it matches an approved
+    deployment pipeline, and remove unauthorised web shells.
+  impacted_assets:
+    - type: device
+      identifier: deviceId
+      column: DeviceId
+query: |
+  DeviceFileEvents
+  | where ActionType in ("FileCreated", "FileModified")
+  | where FolderPath has_any ("/var/www/", "/srv/www/", "\\inetpub\\wwwroot\\", "/usr/share/nginx/html/")
+  | where FileName endswith ".php" or FileName endswith ".phtml" or FileName endswith ".phar"
+  | where InitiatingProcessFileName has_any ("php", "httpd", "apache2", "nginx", "w3wp.exe")
+  | project Timestamp, DeviceId, DeviceName, InitiatingProcessFileName, FolderPath, FileName, SHA256, ReportId
+false_positives:
+  - Content management system plugin installations or web-based upgrades writing PHP files.
+references:
+  - https://www.cyber.gov.au/alert/critical-vulnerabilities-in-php
+  - https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-devicefileevents-table

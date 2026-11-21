@@ -1,0 +1,44 @@
+id: 6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e08
+name: Suspicious PHP Web Shell Script Dropped into Webroot
+description: 'Detects creation or modification of PHP or executable script files inside standard webroot
+  directories by web server or PHP processes. ISM controls: ISM-0580, ISM-1144, ISM-1405. Advisories:
+  acsc-2026-10-21-php-critical-vulnerabilities.'
+severity: High
+status: Available
+kind: Scheduled
+queryFrequency: PT1H
+queryPeriod: PT1H
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- Persistence
+relevantTechniques:
+- T1505.003
+query: 'DeviceFileEvents
+
+  | where ActionType in ("FileCreated", "FileModified")
+
+  | where FolderPath has_any ("/var/www/", "/srv/www/", "\\inetpub\\wwwroot\\", "/usr/share/nginx/html/")
+
+  | where FileName endswith ".php" or FileName endswith ".phtml" or FileName endswith ".phar"
+
+  | where InitiatingProcessFileName has_any ("php", "httpd", "apache2", "nginx", "w3wp.exe")
+
+  | project Timestamp, DeviceId, DeviceName, InitiatingProcessFileName, FolderPath, FileName, SHA256,
+  ReportId
+
+  '
+version: 1.0.0
+requiredDataConnectors:
+- connectorId: MicrosoftThreatProtection
+  dataTypes:
+  - DeviceFileEvents
+entityMappings:
+- entityType: Host
+  fieldMappings:
+  - identifier: HostName
+    columnName: DeviceName
+- entityType: File
+  fieldMappings:
+  - identifier: Name
+    columnName: FileName

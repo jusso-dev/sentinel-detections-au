@@ -1,0 +1,87 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspace": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Log Analytics workspace where Microsoft Sentinel is enabled."
+      }
+    }
+  },
+  "resources": [
+    {
+      "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces/providers', parameters('workspace'), 'Microsoft.SecurityInsights'), '/alertRules/6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e09')]",
+      "name": "[concat(parameters('workspace'), '/Microsoft.SecurityInsights/6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e09')]",
+      "type": "Microsoft.OperationalInsights/workspaces/providers/alertRules",
+      "kind": "Scheduled",
+      "apiVersion": "2023-11-01",
+      "properties": {
+        "displayName": "Password-Protected Archive Staging for Data Exfiltration",
+        "description": "Detects creation of password-protected or split archives via 7-Zip, WinRAR or tar inside temporary or staging folders, a common pre-exfiltration step in state-linked intrusions. ISM controls: ISM-0580, ISM-1405. Advisories: acsc-2026-10-09-chinese-state-linked-automated-tools.",
+        "severity": "Medium",
+        "enabled": true,
+        "query": "DeviceProcessEvents\n| where FileName in~ (\"7z.exe\", \"7za.exe\", \"rar.exe\", \"winrar.exe\", \"7z\")\n| where ProcessCommandLine has_any (\" -p\", \" -hp\", \" -v\")\n| where ProcessCommandLine has_any (\"\\\\temp\\\\\", \"\\\\programdata\\\\\", \"\\\\public\\\\\", \"/tmp/\", \"/dev/shm/\")\n| project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine, ReportId",
+        "queryFrequency": "PT1H",
+        "queryPeriod": "PT1H",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 0,
+        "suppressionDuration": "PT5H",
+        "suppressionEnabled": false,
+        "tactics": [
+          "Collection"
+        ],
+        "techniques": [
+          "T1560"
+        ],
+        "incidentConfiguration": {
+          "createIncident": true,
+          "groupingConfiguration": {
+            "enabled": true,
+            "reopenClosedIncident": false,
+            "lookbackDuration": "PT5H",
+            "matchingMethod": "AllEntities",
+            "groupByEntities": [],
+            "groupByAlertDetails": [],
+            "groupByCustomDetails": []
+          }
+        },
+        "eventGroupingSettings": {
+          "aggregationKind": "SingleAlert"
+        },
+        "subTechniques": [
+          "T1560.001"
+        ],
+        "entityMappings": [
+          {
+            "entityType": "Host",
+            "fieldMappings": [
+              {
+                "identifier": "HostName",
+                "columnName": "DeviceName"
+              }
+            ]
+          },
+          {
+            "entityType": "Account",
+            "fieldMappings": [
+              {
+                "identifier": "Name",
+                "columnName": "AccountName"
+              }
+            ]
+          },
+          {
+            "entityType": "Process",
+            "fieldMappings": [
+              {
+                "identifier": "CommandLine",
+                "columnName": "ProcessCommandLine"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

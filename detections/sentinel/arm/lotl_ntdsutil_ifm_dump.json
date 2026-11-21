@@ -1,0 +1,87 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspace": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Log Analytics workspace where Microsoft Sentinel is enabled."
+      }
+    }
+  },
+  "resources": [
+    {
+      "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces/providers', parameters('workspace'), 'Microsoft.SecurityInsights'), '/alertRules/6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e02')]",
+      "name": "[concat(parameters('workspace'), '/Microsoft.SecurityInsights/6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e02')]",
+      "type": "Microsoft.OperationalInsights/workspaces/providers/alertRules",
+      "kind": "Scheduled",
+      "apiVersion": "2023-11-01",
+      "properties": {
+        "displayName": "Active Directory NTDS.dit Extraction via Ntdsutil IFM",
+        "description": "Detects ntdsutil.exe invoked with Install From Media (IFM) arguments to dump the Active Directory NTDS.dit database, a living off the land credential theft technique highlighted in ASD/ACSC guidance. ISM controls: ISM-0580, ISM-1405, ISM-1657. Advisories: acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques, acsc-2026-10-09-chinese-state-linked-automated-tools.",
+        "severity": "High",
+        "enabled": true,
+        "query": "DeviceProcessEvents\n| where FileName =~ \"ntdsutil.exe\"\n| where ProcessCommandLine has_any (\"ifm\", \"create full\", \"ac i ntds\", \"activate instance ntds\")\n| project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine, ReportId",
+        "queryFrequency": "PT1H",
+        "queryPeriod": "PT1H",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 0,
+        "suppressionDuration": "PT5H",
+        "suppressionEnabled": false,
+        "tactics": [
+          "CredentialAccess"
+        ],
+        "techniques": [
+          "T1003"
+        ],
+        "incidentConfiguration": {
+          "createIncident": true,
+          "groupingConfiguration": {
+            "enabled": true,
+            "reopenClosedIncident": false,
+            "lookbackDuration": "PT5H",
+            "matchingMethod": "AllEntities",
+            "groupByEntities": [],
+            "groupByAlertDetails": [],
+            "groupByCustomDetails": []
+          }
+        },
+        "eventGroupingSettings": {
+          "aggregationKind": "SingleAlert"
+        },
+        "subTechniques": [
+          "T1003.003"
+        ],
+        "entityMappings": [
+          {
+            "entityType": "Host",
+            "fieldMappings": [
+              {
+                "identifier": "HostName",
+                "columnName": "DeviceName"
+              }
+            ]
+          },
+          {
+            "entityType": "Account",
+            "fieldMappings": [
+              {
+                "identifier": "Name",
+                "columnName": "AccountName"
+              }
+            ]
+          },
+          {
+            "entityType": "Process",
+            "fieldMappings": [
+              {
+                "identifier": "CommandLine",
+                "columnName": "ProcessCommandLine"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

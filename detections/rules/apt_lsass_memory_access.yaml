@@ -1,0 +1,65 @@
+id: 6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e10
+name: LSASS Memory Dump via Comsvcs or Native Dump Utilities
+description: >-
+  Detects attempts to dump Local Security Authority Subsystem Service (LSASS) process memory
+  using rundll32 with comsvcs.dll MiniDump or Sysinternals procdump.
+author: sentinel-detections-au
+version: 1.0.0
+severity: High
+status: production
+targets:
+  - sentinel
+  - defender_xdr
+query_frequency: PT1H
+query_period: PT1H
+trigger_operator: gt
+trigger_threshold: 0
+tactics:
+  - CredentialAccess
+techniques:
+  - T1003.001
+ism_controls:
+  - ISM-0580
+  - ISM-1405
+  - ISM-1657
+advisories:
+  - acsc-2026-10-09-chinese-state-linked-automated-tools
+tables:
+  - DeviceProcessEvents
+required_data_connectors:
+  - connector_id: MicrosoftThreatProtection
+    data_types:
+      - DeviceProcessEvents
+entity_mappings:
+  - entity_type: Host
+    field_mappings:
+      - identifier: HostName
+        column_name: DeviceName
+  - entity_type: Account
+    field_mappings:
+      - identifier: Name
+        column_name: AccountName
+  - entity_type: Process
+    field_mappings:
+      - identifier: CommandLine
+        column_name: ProcessCommandLine
+defender_xdr:
+  period: 1H
+  category: CredentialAccess
+  recommended_actions: >-
+    Isolate the host immediately, inspect for dumped credential files, and rotate credentials
+    for all accounts with active sessions on the endpoint.
+  impacted_assets:
+    - type: device
+      identifier: deviceId
+      column: DeviceId
+query: |
+  DeviceProcessEvents
+  | where (FileName =~ "rundll32.exe" and ProcessCommandLine has_all ("comsvcs", "minidump"))
+      or (FileName in~ ("procdump.exe", "procdump64.exe") and ProcessCommandLine has_all ("-ma", "lsass"))
+  | project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine, ReportId
+false_positives:
+  - Rare crash-dump collection by Microsoft Support during authorised LSASS troubleshooting.
+references:
+  - https://www.cyber.gov.au/advisory/chinese-government-linked-cyber-threat-actors-combine-automated-and-hands-on-hacking-tools-to-steal-sensitive-data
+  - https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-deviceprocessevents-table

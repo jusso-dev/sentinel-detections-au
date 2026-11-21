@@ -1,0 +1,65 @@
+id: 6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e09
+name: Password-Protected Archive Staging for Data Exfiltration
+description: >-
+  Detects creation of password-protected or split archives via 7-Zip, WinRAR or tar inside
+  temporary or staging folders, a common pre-exfiltration step in state-linked intrusions.
+author: sentinel-detections-au
+version: 1.0.0
+severity: Medium
+status: production
+targets:
+  - sentinel
+  - defender_xdr
+query_frequency: PT1H
+query_period: PT1H
+trigger_operator: gt
+trigger_threshold: 0
+tactics:
+  - Collection
+techniques:
+  - T1560.001
+ism_controls:
+  - ISM-0580
+  - ISM-1405
+advisories:
+  - acsc-2026-10-09-chinese-state-linked-automated-tools
+tables:
+  - DeviceProcessEvents
+required_data_connectors:
+  - connector_id: MicrosoftThreatProtection
+    data_types:
+      - DeviceProcessEvents
+entity_mappings:
+  - entity_type: Host
+    field_mappings:
+      - identifier: HostName
+        column_name: DeviceName
+  - entity_type: Account
+    field_mappings:
+      - identifier: Name
+        column_name: AccountName
+  - entity_type: Process
+    field_mappings:
+      - identifier: CommandLine
+        column_name: ProcessCommandLine
+defender_xdr:
+  period: 1H
+  category: Collection
+  recommended_actions: >-
+    Review the archived paths and check subsequent outbound network transfers from the host
+    for signs of data exfiltration.
+  impacted_assets:
+    - type: device
+      identifier: deviceId
+      column: DeviceId
+query: |
+  DeviceProcessEvents
+  | where FileName in~ ("7z.exe", "7za.exe", "rar.exe", "winrar.exe", "7z")
+  | where ProcessCommandLine has_any (" -p", " -hp", " -v")
+  | where ProcessCommandLine has_any ("\\temp\\", "\\programdata\\", "\\public\\", "/tmp/", "/dev/shm/")
+  | project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine, ReportId
+false_positives:
+  - Authorised support engineers creating encrypted diagnostic bundles in temporary folders.
+references:
+  - https://www.cyber.gov.au/advisory/chinese-government-linked-cyber-threat-actors-combine-automated-and-hands-on-hacking-tools-to-steal-sensitive-data
+  - https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-deviceprocessevents-table

@@ -1,0 +1,31 @@
+{
+  "@odata.type": "#microsoft.graph.security.detectionRule",
+  "displayName": "LSASS Memory Dump via Comsvcs or Native Dump Utilities",
+  "isEnabled": true,
+  "queryCondition": {
+    "queryText": "DeviceProcessEvents\n| where (FileName =~ \"rundll32.exe\" and ProcessCommandLine has_all (\"comsvcs\", \"minidump\"))\n    or (FileName in~ (\"procdump.exe\", \"procdump64.exe\") and ProcessCommandLine has_all (\"-ma\", \"lsass\"))\n| project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine, ReportId"
+  },
+  "schedule": {
+    "period": "1H"
+  },
+  "detectionAction": {
+    "alertTemplate": {
+      "title": "LSASS Memory Dump via Comsvcs or Native Dump Utilities",
+      "description": "Detects attempts to dump Local Security Authority Subsystem Service (LSASS) process memory using rundll32 with comsvcs.dll MiniDump or Sysinternals procdump. ISM controls: ISM-0580, ISM-1405, ISM-1657. Advisories: acsc-2026-10-09-chinese-state-linked-automated-tools.",
+      "severity": "high",
+      "category": "CredentialAccess",
+      "mitreTechniques": [
+        "T1003.001"
+      ],
+      "recommendedActions": "Isolate the host immediately, inspect for dumped credential files, and rotate credentials for all accounts with active sessions on the endpoint (ISM controls: ISM-0580, ISM-1405, ISM-1657; Advisories: acsc-2026-10-09-chinese-state-linked-automated-tools).",
+      "impactedAssets": [
+        {
+          "@odata.type": "#microsoft.graph.security.impactedDeviceAsset",
+          "identifier": "deviceId"
+        }
+      ]
+    },
+    "organizationalScope": null,
+    "responseActions": []
+  }
+}

@@ -1,0 +1,34 @@
+rule: detections/rules/lotl_encoded_powershell.yaml
+table: DeviceProcessEvents
+positive_cases:
+  - name: Encoded PowerShell launched by cmd.exe
+    rows:
+      - Timestamp: "2026-10-15T01:00:00Z"
+        DeviceId: "00000000-0000-0000-0000-000000000001"
+        DeviceName: "ws-au-01.example.local"
+        AccountName: "jdoe"
+        InitiatingProcessFileName: "cmd.exe"
+        FileName: "powershell.exe"
+        ProcessCommandLine: "powershell.exe -NoProfile -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAKQA="
+        ReportId: 1001
+negative_cases:
+  - name: Intune management extension running encoded command
+    rows:
+      - Timestamp: "2026-10-15T01:05:00Z"
+        DeviceId: "00000000-0000-0000-0000-000000000001"
+        DeviceName: "ws-au-01.example.local"
+        AccountName: "SYSTEM"
+        InitiatingProcessFileName: "IntuneManagementExtension.exe"
+        FileName: "powershell.exe"
+        ProcessCommandLine: "powershell.exe -enc SQBFAFgA"
+        ReportId: 1002
+  - name: Standard PowerShell help command
+    rows:
+      - Timestamp: "2026-10-15T01:06:00Z"
+        DeviceId: "00000000-0000-0000-0000-000000000001"
+        DeviceName: "ws-au-01.example.local"
+        AccountName: "jdoe"
+        InitiatingProcessFileName: "explorer.exe"
+        FileName: "powershell.exe"
+        ProcessCommandLine: "powershell.exe Get-Service"
+        ReportId: 1003

@@ -1,0 +1,24 @@
+rule: detections/rules/phishing_signin_token_anomaly.yaml
+table: SigninLogs
+positive_cases:
+  - name: High-risk Entra ID sign-in succeeding with single-factor authentication
+    rows:
+      - TimeGenerated: "2026-10-15T17:00:00Z"
+        UserPrincipalName: "jcitizen@example.com.au"
+        IPAddress: "203.0.113.77"
+        AppDisplayName: "Office 365 Exchange Online"
+        ClientAppUsed: "IMAP4"
+        RiskLevelDuringSignIn: "high"
+        AuthenticationRequirement: "singleFactorAuthentication"
+        ResultType: "0"
+negative_cases:
+  - name: Low-risk interactive sign-in with MFA
+    rows:
+      - TimeGenerated: "2026-10-15T17:05:00Z"
+        UserPrincipalName: "jcitizen@example.com.au"
+        IPAddress: "198.51.100.20"
+        AppDisplayName: "Microsoft Teams"
+        ClientAppUsed: "Browser"
+        RiskLevelDuringSignIn: "none"
+        AuthenticationRequirement: "multiFactorAuthentication"
+        ResultType: "0"

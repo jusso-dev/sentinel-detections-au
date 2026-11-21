@@ -3,7 +3,7 @@ title: Chinese government-linked cyber threat actors combine automated and hands
 date: "2026-10-09"
 source: advisories
 link: https://www.cyber.gov.au/advisory/chinese-government-linked-cyber-threat-actors-combine-automated-and-hands-on-hacking-tools-to-steal-sensitive-data
-status: reviewed
+status: mapped
 needs_human_review: false
 summary: >-
   ASD's ACSC advisory explaining how Chinese state-linked actors pair automated vulnerability
@@ -32,7 +32,10 @@ ism_controls:
   - ISM-1144
   - ISM-1405
   - ISM-1690
-linked_detections: []
+linked_detections:
+  - detections/rules/apt_archive_staging_exfil.yaml
+  - detections/rules/apt_lsass_memory_access.yaml
+  - detections/rules/lotl_ntdsutil_ifm_dump.yaml
 attribution: >-
   Summarised independently from official ASD ACSC advisory (Commonwealth of Australia 2026).
   Refer to the linked cyber.gov.au publication for authoritative text.

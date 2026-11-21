@@ -1,0 +1,24 @@
+rule: detections/rules/lotl_ntdsutil_ifm_dump.yaml
+table: DeviceProcessEvents
+positive_cases:
+  - name: Ntdsutil creating IFM snapshot to temp directory
+    rows:
+      - Timestamp: "2026-10-15T02:00:00Z"
+        DeviceId: "00000000-0000-0000-0000-000000000002"
+        DeviceName: "dc-au-01.example.local"
+        AccountName: "admin_svc"
+        InitiatingProcessFileName: "cmd.exe"
+        FileName: "ntdsutil.exe"
+        ProcessCommandLine: "ntdsutil.exe \"ac i ntds\" \"ifm\" \"create full C:\\Temp\\ntds\" q q"
+        ReportId: 2001
+negative_cases:
+  - name: Ntdsutil metadata cleanup without IFM dump
+    rows:
+      - Timestamp: "2026-10-15T02:05:00Z"
+        DeviceId: "00000000-0000-0000-0000-000000000002"
+        DeviceName: "dc-au-01.example.local"
+        AccountName: "admin_svc"
+        InitiatingProcessFileName: "cmd.exe"
+        FileName: "ntdsutil.exe"
+        ProcessCommandLine: "ntdsutil.exe \"metadata cleanup\" connections quit"
+        ReportId: 2002

@@ -1,0 +1,32 @@
+{
+  "@odata.type": "#microsoft.graph.security.detectionRule",
+  "displayName": "Suspicious Exchange Online Inbox Forwarding or Hiding Rule Created",
+  "isEnabled": true,
+  "queryCondition": {
+    "queryText": "CloudAppEvents\n| where ActionType in (\"New-InboxRule\", \"Set-InboxRule\", \"Set-Mailbox\")\n| extend RuleData = tostring(RawEventData)\n| where RuleData has_any (\"ForwardTo\", \"ForwardAsAttachmentTo\", \"RedirectTo\", \"ForwardingSmtpAddress\", \"MarkAsRead\", \"MoveToFolder\")\n| where RuleData has_any (\"ForwardTo\", \"ForwardAsAttachmentTo\", \"RedirectTo\", \"ForwardingSmtpAddress\", \"RSS Feeds\", \"Deleted Items\", \"Conversation History\")\n| project Timestamp, AccountObjectId, AccountDisplayName, ActionType, IPAddress, CountryCode, RuleData, ReportId"
+  },
+  "schedule": {
+    "period": "1H"
+  },
+  "detectionAction": {
+    "alertTemplate": {
+      "title": "Suspicious Exchange Online Inbox Forwarding or Hiding Rule Created",
+      "description": "Detects creation or modification of Exchange Online inbox rules that forward email externally or hide messages in RSS or Deleted Items folders following credential phishing. ISM controls: ISM-0580, ISM-1405, ISM-1504. Advisories: acsc-2026-09-08-russian-state-phishing-zimbra.",
+      "severity": "high",
+      "category": "Collection",
+      "mitreTechniques": [
+        "T1114.003",
+        "T1566.002"
+      ],
+      "recommendedActions": "Review the mailbox rule parameters, check recent sign-ins for the user account, remove unauthorised forwarding rules, and revoke active refresh tokens (ISM controls: ISM-0580, ISM-1405, ISM-1504; Advisories: acsc-2026-09-08-russian-state-phishing-zimbra).",
+      "impactedAssets": [
+        {
+          "@odata.type": "#microsoft.graph.security.impactedUserAsset",
+          "identifier": "aadObjectId"
+        }
+      ]
+    },
+    "organizationalScope": null,
+    "responseActions": []
+  }
+}

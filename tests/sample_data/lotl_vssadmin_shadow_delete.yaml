@@ -1,0 +1,24 @@
+rule: detections/rules/lotl_vssadmin_shadow_delete.yaml
+table: DeviceProcessEvents
+positive_cases:
+  - name: Vssadmin deleting all shadow copies quietly
+    rows:
+      - Timestamp: "2026-10-15T03:00:00Z"
+        DeviceId: "00000000-0000-0000-0000-000000000003"
+        DeviceName: "srv-au-01.example.local"
+        AccountName: "SYSTEM"
+        InitiatingProcessFileName: "cmd.exe"
+        FileName: "vssadmin.exe"
+        ProcessCommandLine: "vssadmin.exe delete shadows /all /quiet"
+        ReportId: 3001
+negative_cases:
+  - name: Vssadmin listing shadow copies for inventory
+    rows:
+      - Timestamp: "2026-10-15T03:05:00Z"
+        DeviceId: "00000000-0000-0000-0000-000000000003"
+        DeviceName: "srv-au-01.example.local"
+        AccountName: "backup_svc"
+        InitiatingProcessFileName: "powershell.exe"
+        FileName: "vssadmin.exe"
+        ProcessCommandLine: "vssadmin.exe list shadows"
+        ReportId: 3002

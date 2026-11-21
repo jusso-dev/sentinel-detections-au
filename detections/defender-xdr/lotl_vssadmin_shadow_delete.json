@@ -1,0 +1,31 @@
+{
+  "@odata.type": "#microsoft.graph.security.detectionRule",
+  "displayName": "Volume Shadow Copy Deletion via Native Utilities",
+  "isEnabled": true,
+  "queryCondition": {
+    "queryText": "DeviceProcessEvents\n| where FileName in~ (\"vssadmin.exe\", \"wmic.exe\", \"powershell.exe\", \"pwsh.exe\")\n| where (ProcessCommandLine has_all (\"delete\", \"shadows\"))\n    or (ProcessCommandLine has_all (\"shadowcopy\", \"delete\"))\n    or (ProcessCommandLine has_all (\"Win32_ShadowCopy\", \"Delete\"))\n| project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine, ReportId"
+  },
+  "schedule": {
+    "period": "1H"
+  },
+  "detectionAction": {
+    "alertTemplate": {
+      "title": "Volume Shadow Copy Deletion via Native Utilities",
+      "description": "Detects deletion of Windows Volume Shadow Copies via vssadmin, wmic or PowerShell to inhibit system recovery during ransomware or destructive post-exploitation activity. ISM controls: ISM-0580, ISM-1405, ISM-1511. Advisories: acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques, acsc-2026-09-08-digital-camouflage-crypters-malware.",
+      "severity": "high",
+      "category": "Impact",
+      "mitreTechniques": [
+        "T1490"
+      ],
+      "recommendedActions": "Isolate the affected host immediately and investigate parent processes for ransomware or destructive malware staging (ISM controls: ISM-0580, ISM-1405, ISM-1511; Advisories: acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques, acsc-2026-09-08-digital-camouflage-crypters-malware).",
+      "impactedAssets": [
+        {
+          "@odata.type": "#microsoft.graph.security.impactedDeviceAsset",
+          "identifier": "deviceId"
+        }
+      ]
+    },
+    "organizationalScope": null,
+    "responseActions": []
+  }
+}

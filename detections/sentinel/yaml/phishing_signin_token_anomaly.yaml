@@ -1,0 +1,37 @@
+id: 6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e17
+name: High-Risk Cloud Sign-In Without Phishing-Resistant MFA
+description: 'Detects successful Microsoft Entra ID sign-ins flagged at medium or high risk where single-factor
+  authentication succeeded or legacy authentication protocols were used, consistent with credential phishing
+  or stolen session replay. ISM controls: ISM-0580, ISM-1405, ISM-1504, ISM-1657. Advisories: acsc-2026-09-08-russian-state-phishing-zimbra,
+  acsc-2026-11-17-vulnerabilities-patch-protect-prevent.'
+severity: High
+status: Available
+kind: Scheduled
+queryFrequency: PT1H
+queryPeriod: PT1H
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- InitialAccess
+- CredentialAccess
+relevantTechniques:
+- T1078.004
+- T1528
+query: "SigninLogs\n| where ResultType == \"0\"\n| where RiskLevelDuringSignIn in~ (\"medium\", \"high\"\
+  )\n| where AuthenticationRequirement =~ \"singleFactorAuthentication\"\n    or ClientAppUsed in~ (\"\
+  IMAP4\", \"POP3\", \"SMTP\", \"Exchange ActiveSync\", \"Other clients\")\n| project TimeGenerated, UserPrincipalName,\
+  \ IPAddress, AppDisplayName, ClientAppUsed, RiskLevelDuringSignIn, AuthenticationRequirement\n"
+version: 1.0.0
+requiredDataConnectors:
+- connectorId: AzureActiveDirectory
+  dataTypes:
+  - SigninLogs
+entityMappings:
+- entityType: Account
+  fieldMappings:
+  - identifier: FullName
+    columnName: UserPrincipalName
+- entityType: IP
+  fieldMappings:
+  - identifier: Address
+    columnName: IPAddress
