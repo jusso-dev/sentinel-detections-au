@@ -1,0 +1,223 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jusso-dev/sentinel-detections-au/schemas/detection.schema.json",
+  "title": "Detection Rule",
+  "description": "Canonical source schema for dual-packaged Microsoft Sentinel analytics rules and Microsoft Defender XDR custom detections.",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "description",
+    "severity",
+    "status",
+    "targets",
+    "query_frequency",
+    "query_period",
+    "tactics",
+    "techniques",
+    "ism_controls",
+    "tables",
+    "query",
+    "references"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 160
+    },
+    "description": {
+      "type": "string",
+      "minLength": 20
+    },
+    "author": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["Informational", "Low", "Medium", "High"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["experimental", "production", "deprecated"]
+    },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": ["sentinel", "defender_xdr"]
+      }
+    },
+    "query_frequency": {
+      "type": "string",
+      "pattern": "^P(?:\\d+D|T\\d+[HM])$"
+    },
+    "query_period": {
+      "type": "string",
+      "pattern": "^P(?:\\d+D|T\\d+[HM])$"
+    },
+    "trigger_operator": {
+      "type": "string",
+      "enum": ["gt", "lt", "eq", "ne"],
+      "default": "gt"
+    },
+    "trigger_threshold": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "tactics": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "Reconnaissance",
+          "ResourceDevelopment",
+          "InitialAccess",
+          "Execution",
+          "Persistence",
+          "PrivilegeEscalation",
+          "DefenseEvasion",
+          "CredentialAccess",
+          "Discovery",
+          "LateralMovement",
+          "Collection",
+          "CommandAndControl",
+          "Exfiltration",
+          "Impact"
+        ]
+      }
+    },
+    "techniques": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^T\\d{4}(?:\\.\\d{3})?$"
+      }
+    },
+    "ism_controls": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^ISM-\\d{4}$"
+      }
+    },
+    "advisories": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 3
+      }
+    },
+    "tables": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 2
+      }
+    },
+    "required_data_connectors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["connector_id", "data_types"],
+        "additionalProperties": false,
+        "properties": {
+          "connector_id": { "type": "string" },
+          "data_types": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "entity_mappings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["entity_type", "field_mappings"],
+        "additionalProperties": false,
+        "properties": {
+          "entity_type": {
+            "type": "string",
+            "enum": ["Account", "Host", "IP", "URL", "File", "FileHash", "Process", "CloudApplication", "MailMessage", "DNS", "RegistryKey"]
+          },
+          "field_mappings": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["identifier", "column_name"],
+              "additionalProperties": false,
+              "properties": {
+                "identifier": { "type": "string" },
+                "column_name": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "defender_xdr": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "period": {
+          "type": "string",
+          "enum": ["0", "1H", "3H", "12H", "24H"]
+        },
+        "category": { "type": "string" },
+        "recommended_actions": { "type": "string" },
+        "impacted_assets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["type", "identifier", "column"],
+            "additionalProperties": false,
+            "properties": {
+              "type": { "type": "string", "enum": ["device", "user", "mailbox"] },
+              "identifier": { "type": "string" },
+              "column": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "query": {
+      "type": "string",
+      "minLength": 15
+    },
+    "false_positives": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "references": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^https://"
+      }
+    }
+  }
+}
