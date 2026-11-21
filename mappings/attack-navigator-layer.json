@@ -1,0 +1,846 @@
+{
+  "name": "sentinel-detections-au Coverage",
+  "versions": {
+    "attack": "20",
+    "navigator": "5.1.0",
+    "layer": "4.5"
+  },
+  "domain": "enterprise-attack",
+  "description": "Independent community coverage layer mapping Microsoft Sentinel and Microsoft Defender XDR detections and hunting queries to ASD/ACSC advisories and ISM controls.",
+  "filters": {
+    "platforms": [
+      "Windows",
+      "Linux",
+      "macOS",
+      "Identity Provider",
+      "SaaS",
+      "Network Devices",
+      "Office Suite"
+    ]
+  },
+  "sorting": 3,
+  "layout": {
+    "layout": "side",
+    "aggregateFunction": "average",
+    "showID": true,
+    "showName": true,
+    "showAggregateScores": false,
+    "countUnscored": false
+  },
+  "hideDisabled": false,
+  "techniques": [
+    {
+      "techniqueID": "T1003.001",
+      "score": 1,
+      "enabled": true,
+      "comment": "[detection] LSASS Memory Dump via Comsvcs or Native Dump Utilities (detections/rules/apt_lsass_memory_access.yaml; ISM: ISM-0580, ISM-1405, ISM-1657)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1405, ISM-1657"
+        }
+      ],
+      "tactic": "credential-access"
+    },
+    {
+      "techniqueID": "T1003.002",
+      "score": 1,
+      "enabled": true,
+      "comment": "[hunting] Living off the Land Registry SAM and SYSTEM Hive Extraction (hunting/lotl/lotl_hunt_reg_sam_system_save.yaml; ISM: ISM-0580, ISM-1405, ISM-1657)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1405, ISM-1657"
+        }
+      ],
+      "tactic": "credential-access"
+    },
+    {
+      "techniqueID": "T1003.003",
+      "score": 1,
+      "enabled": true,
+      "comment": "[detection] Active Directory NTDS.dit Extraction via Ntdsutil IFM (detections/rules/lotl_ntdsutil_ifm_dump.yaml; ISM: ISM-0580, ISM-1405, ISM-1657)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1405, ISM-1657"
+        }
+      ],
+      "tactic": "credential-access"
+    },
+    {
+      "techniqueID": "T1021.002",
+      "score": 2,
+      "enabled": true,
+      "comment": "[detection] Unexpected Internal Administrative Protocol Traffic From Edge or DMZ Hosts (detections/rules/edge_fortinet_post_exploit_lateral.yaml; ISM: ISM-0580, ISM-1144, ISM-1405, ISM-1690)\n[hunting] Living off the Land Remote Service Creation via SC.exe (hunting/lotl/lotl_hunt_sc_remote_service_creation.yaml; ISM: ISM-0580, ISM-1405, ISM-1657)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "2"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1144, ISM-1405, ISM-1657, ISM-1690"
+        }
+      ],
+      "tactic": "lateral-movement"
+    },
+    {
+      "techniqueID": "T1021.004",
+      "score": 1,
+      "enabled": true,
+      "comment": "[hunting] Living off the Land SSH or Plink Reverse and SOCKS Tunnelling (hunting/lotl/lotl_hunt_ssh_remote_port_forward.yaml; ISM: ISM-0580, ISM-1405, ISM-1690)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1405, ISM-1690"
+        }
+      ],
+      "tactic": "lateral-movement"
+    },
+    {
+      "techniqueID": "T1027",
+      "score": 1,
+      "enabled": true,
+      "comment": "[detection] Microsoft Defender Antivirus Exclusion Added via Command Line (detections/rules/crypter_defender_exclusion_tampering.yaml; ISM: ISM-0580, ISM-0843, ISM-1405, ISM-1621)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-0843, ISM-1405, ISM-1621"
+        }
+      ],
+      "tactic": "stealth"
+    },
+    {
+      "techniqueID": "T1047",
+      "score": 1,
+      "enabled": true,
+      "comment": "[detection] Remote Process Creation via WMIC (detections/rules/lotl_wmic_remote_process_create.yaml; ISM: ISM-0580, ISM-1405, ISM-1621, ISM-1657)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1405, ISM-1621, ISM-1657"
+        }
+      ],
+      "tactic": "execution"
+    },
+    {
+      "techniqueID": "T1053.005",
+      "score": 1,
+      "enabled": true,
+      "comment": "[detection] Suspicious Scheduled Task Creation Invoking Script Engine (detections/rules/lotl_schtasks_suspicious_persistence.yaml; ISM: ISM-0580, ISM-0843, ISM-1405, ISM-1621)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-0843, ISM-1405, ISM-1621"
+        }
+      ],
+      "tactic": "execution"
+    },
+    {
+      "techniqueID": "T1053.005",
+      "score": 1,
+      "enabled": true,
+      "comment": "[detection] Suspicious Scheduled Task Creation Invoking Script Engine (detections/rules/lotl_schtasks_suspicious_persistence.yaml; ISM: ISM-0580, ISM-0843, ISM-1405, ISM-1621)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-0843, ISM-1405, ISM-1621"
+        }
+      ],
+      "tactic": "persistence"
+    },
+    {
+      "techniqueID": "T1053.005",
+      "score": 1,
+      "enabled": true,
+      "comment": "[detection] Suspicious Scheduled Task Creation Invoking Script Engine (detections/rules/lotl_schtasks_suspicious_persistence.yaml; ISM: ISM-0580, ISM-0843, ISM-1405, ISM-1621)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-0843, ISM-1405, ISM-1621"
+        }
+      ],
+      "tactic": "privilege-escalation"
+    },
+    {
+      "techniqueID": "T1059.001",
+      "score": 1,
+      "enabled": true,
+      "comment": "[detection] Encoded PowerShell Execution via Living off the Land (detections/rules/lotl_encoded_powershell.yaml; ISM: ISM-1621, ISM-0580, ISM-1405)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1405, ISM-1621"
+        }
+      ],
+      "tactic": "execution"
+    },
+    {
+      "techniqueID": "T1059.004",
+      "score": 1,
+      "enabled": true,
+      "comment": "[detection] PHP Runtime Spawning Interactive Shell or Download Utility (detections/rules/web_php_cgi_child_shell.yaml; ISM: ISM-0580, ISM-1144, ISM-1405, ISM-1690)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1144, ISM-1405, ISM-1690"
+        }
+      ],
+      "tactic": "execution"
+    },
+    {
+      "techniqueID": "T1059.006",
+      "score": 1,
+      "enabled": true,
+      "comment": "[detection] Suspicious Node.js or Python Developer Runtime Spawning Obfuscated Shell (detections/rules/waterplum_dev_node_python_c2_spawn.yaml; ISM: ISM-0580, ISM-0843, ISM-1405, ISM-1621)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-0843, ISM-1405, ISM-1621"
+        }
+      ],
+      "tactic": "execution"
+    },
+    {
+      "techniqueID": "T1059.007",
+      "score": 1,
+      "enabled": true,
+      "comment": "[detection] Suspicious Node.js or Python Developer Runtime Spawning Obfuscated Shell (detections/rules/waterplum_dev_node_python_c2_spawn.yaml; ISM: ISM-0580, ISM-0843, ISM-1405, ISM-1621)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-0843, ISM-1405, ISM-1621"
+        }
+      ],
+      "tactic": "execution"
+    },
+    {
+      "techniqueID": "T1069.002",
+      "score": 1,
+      "enabled": true,
+      "comment": "[hunting] Living off the Land Active Directory Enumeration Commands (hunting/lotl/lotl_hunt_ad_discovery_commands.yaml; ISM: ISM-0580, ISM-1405)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1405"
+        }
+      ],
+      "tactic": "discovery"
+    },
+    {
+      "techniqueID": "T1078.004",
+      "score": 1,
+      "enabled": true,
+      "comment": "[detection] High-Risk Cloud Sign-In Without Phishing-Resistant MFA (detections/rules/phishing_signin_token_anomaly.yaml; ISM: ISM-0580, ISM-1405, ISM-1504, ISM-1657)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1405, ISM-1504, ISM-1657"
+        }
+      ],
+      "tactic": "initial-access"
+    },
+    {
+      "techniqueID": "T1078.004",
+      "score": 1,
+      "enabled": true,
+      "comment": "[detection] High-Risk Cloud Sign-In Without Phishing-Resistant MFA (detections/rules/phishing_signin_token_anomaly.yaml; ISM: ISM-0580, ISM-1405, ISM-1504, ISM-1657)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1405, ISM-1504, ISM-1657"
+        }
+      ],
+      "tactic": "persistence"
+    },
+    {
+      "techniqueID": "T1078.004",
+      "score": 1,
+      "enabled": true,
+      "comment": "[detection] High-Risk Cloud Sign-In Without Phishing-Resistant MFA (detections/rules/phishing_signin_token_anomaly.yaml; ISM: ISM-0580, ISM-1405, ISM-1504, ISM-1657)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1405, ISM-1504, ISM-1657"
+        }
+      ],
+      "tactic": "privilege-escalation"
+    },
+    {
+      "techniqueID": "T1078.004",
+      "score": 1,
+      "enabled": true,
+      "comment": "[detection] High-Risk Cloud Sign-In Without Phishing-Resistant MFA (detections/rules/phishing_signin_token_anomaly.yaml; ISM: ISM-0580, ISM-1405, ISM-1504, ISM-1657)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1405, ISM-1504, ISM-1657"
+        }
+      ],
+      "tactic": "stealth"
+    },
+    {
+      "techniqueID": "T1087.002",
+      "score": 1,
+      "enabled": true,
+      "comment": "[hunting] Living off the Land Active Directory Enumeration Commands (hunting/lotl/lotl_hunt_ad_discovery_commands.yaml; ISM: ISM-0580, ISM-1405)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1405"
+        }
+      ],
+      "tactic": "discovery"
+    },
+    {
+      "techniqueID": "T1090.001",
+      "score": 1,
+      "enabled": true,
+      "comment": "[detection] Netsh Portproxy Tunnel Configuration (detections/rules/lotl_netsh_portproxy_tunnel.yaml; ISM: ISM-0580, ISM-1405, ISM-1621)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1405, ISM-1621"
+        }
+      ],
+      "tactic": "command-and-control"
+    },
+    {
+      "techniqueID": "T1098.001",
+      "score": 1,
+      "enabled": true,
+      "comment": "[detection] Credential Added to Microsoft Entra ID Application or Service Principal (detections/rules/identity_ai_service_app_credential_add.yaml; ISM: ISM-0580, ISM-1405, ISM-1504, ISM-1657)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1405, ISM-1504, ISM-1657"
+        }
+      ],
+      "tactic": "persistence"
+    },
+    {
+      "techniqueID": "T1098.001",
+      "score": 1,
+      "enabled": true,
+      "comment": "[detection] Credential Added to Microsoft Entra ID Application or Service Principal (detections/rules/identity_ai_service_app_credential_add.yaml; ISM: ISM-0580, ISM-1405, ISM-1504, ISM-1657)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1405, ISM-1504, ISM-1657"
+        }
+      ],
+      "tactic": "privilege-escalation"
+    },
+    {
+      "techniqueID": "T1105",
+      "score": 3,
+      "enabled": true,
+      "comment": "[detection] Certutil Abuse for Remote File Download or Decoding (detections/rules/lotl_certutil_remote_download.yaml; ISM: ISM-0580, ISM-0843, ISM-1405, ISM-1621)\n[hunting] Living off the Land BITSAdmin Transfer Activity (hunting/lotl/lotl_hunt_bitsadmin_transfers.yaml; ISM: ISM-0580, ISM-0843, ISM-1405)\n[hunting] Living off the Land Curl or Wget Payload Staging to Temp Paths (hunting/lotl/lotl_hunt_curl_wget_suspicious_staging.yaml; ISM: ISM-0580, ISM-0843, ISM-1405)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "3"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-0843, ISM-1405, ISM-1621"
+        }
+      ],
+      "tactic": "command-and-control"
+    },
+    {
+      "techniqueID": "T1110",
+      "score": 1,
+      "enabled": true,
+      "comment": "[detection] Edge VPN Brute Force Followed by Successful Authentication (detections/rules/edge_fortinet_vpn_bruteforce_followup.yaml; ISM: ISM-0580, ISM-1405, ISM-1504, ISM-1690)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1405, ISM-1504, ISM-1690"
+        }
+      ],
+      "tactic": "credential-access"
+    },
+    {
+      "techniqueID": "T1112",
+      "score": 1,
+      "enabled": true,
+      "comment": "[detection] Microsoft Defender Antivirus Exclusion Added via Command Line (detections/rules/crypter_defender_exclusion_tampering.yaml; ISM: ISM-0580, ISM-0843, ISM-1405, ISM-1621)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-0843, ISM-1405, ISM-1621"
+        }
+      ],
+      "tactic": "defense-impairment"
+    },
+    {
+      "techniqueID": "T1112",
+      "score": 1,
+      "enabled": true,
+      "comment": "[detection] Microsoft Defender Antivirus Exclusion Added via Command Line (detections/rules/crypter_defender_exclusion_tampering.yaml; ISM: ISM-0580, ISM-0843, ISM-1405, ISM-1621)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-0843, ISM-1405, ISM-1621"
+        }
+      ],
+      "tactic": "persistence"
+    },
+    {
+      "techniqueID": "T1114.003",
+      "score": 1,
+      "enabled": true,
+      "comment": "[detection] Suspicious Exchange Online Inbox Forwarding or Hiding Rule Created (detections/rules/phishing_inbox_forwarding_rule.yaml; ISM: ISM-0580, ISM-1405, ISM-1504)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1405, ISM-1504"
+        }
+      ],
+      "tactic": "collection"
+    },
+    {
+      "techniqueID": "T1133",
+      "score": 2,
+      "enabled": true,
+      "comment": "[detection] Unexpected Internal Administrative Protocol Traffic From Edge or DMZ Hosts (detections/rules/edge_fortinet_post_exploit_lateral.yaml; ISM: ISM-0580, ISM-1144, ISM-1405, ISM-1690)\n[detection] Edge VPN Brute Force Followed by Successful Authentication (detections/rules/edge_fortinet_vpn_bruteforce_followup.yaml; ISM: ISM-0580, ISM-1405, ISM-1504, ISM-1690)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "2"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1144, ISM-1405, ISM-1504, ISM-1690"
+        }
+      ],
+      "tactic": "initial-access"
+    },
+    {
+      "techniqueID": "T1133",
+      "score": 2,
+      "enabled": true,
+      "comment": "[detection] Unexpected Internal Administrative Protocol Traffic From Edge or DMZ Hosts (detections/rules/edge_fortinet_post_exploit_lateral.yaml; ISM: ISM-0580, ISM-1144, ISM-1405, ISM-1690)\n[detection] Edge VPN Brute Force Followed by Successful Authentication (detections/rules/edge_fortinet_vpn_bruteforce_followup.yaml; ISM: ISM-0580, ISM-1405, ISM-1504, ISM-1690)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "2"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1144, ISM-1405, ISM-1504, ISM-1690"
+        }
+      ],
+      "tactic": "persistence"
+    },
+    {
+      "techniqueID": "T1190",
+      "score": 3,
+      "enabled": true,
+      "comment": "[detection] Web Server Process Spawning Command Shell (Web Shell Follow-On) (detections/rules/edge_citrix_webshell_followup.yaml; ISM: ISM-0580, ISM-1144, ISM-1405)\n[detection] Unexpected Internal Administrative Protocol Traffic From Edge or DMZ Hosts (detections/rules/edge_fortinet_post_exploit_lateral.yaml; ISM: ISM-0580, ISM-1144, ISM-1405, ISM-1690)\n[detection] PHP Runtime Spawning Interactive Shell or Download Utility (detections/rules/web_php_cgi_child_shell.yaml; ISM: ISM-0580, ISM-1144, ISM-1405, ISM-1690)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "3"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1144, ISM-1405, ISM-1690"
+        }
+      ],
+      "tactic": "initial-access"
+    },
+    {
+      "techniqueID": "T1197",
+      "score": 1,
+      "enabled": true,
+      "comment": "[hunting] Living off the Land BITSAdmin Transfer Activity (hunting/lotl/lotl_hunt_bitsadmin_transfers.yaml; ISM: ISM-0580, ISM-0843, ISM-1405)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-0843, ISM-1405"
+        }
+      ],
+      "tactic": "execution"
+    },
+    {
+      "techniqueID": "T1197",
+      "score": 1,
+      "enabled": true,
+      "comment": "[hunting] Living off the Land BITSAdmin Transfer Activity (hunting/lotl/lotl_hunt_bitsadmin_transfers.yaml; ISM: ISM-0580, ISM-0843, ISM-1405)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-0843, ISM-1405"
+        }
+      ],
+      "tactic": "persistence"
+    },
+    {
+      "techniqueID": "T1197",
+      "score": 1,
+      "enabled": true,
+      "comment": "[hunting] Living off the Land BITSAdmin Transfer Activity (hunting/lotl/lotl_hunt_bitsadmin_transfers.yaml; ISM: ISM-0580, ISM-0843, ISM-1405)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-0843, ISM-1405"
+        }
+      ],
+      "tactic": "stealth"
+    },
+    {
+      "techniqueID": "T1218.005",
+      "score": 1,
+      "enabled": true,
+      "comment": "[hunting] Living off the Land Mshta Remote or Inline Script Execution (hunting/lotl/lotl_hunt_mshta_remote_execution.yaml; ISM: ISM-0580, ISM-0843, ISM-1405, ISM-1621)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-0843, ISM-1405, ISM-1621"
+        }
+      ],
+      "tactic": "stealth"
+    },
+    {
+      "techniqueID": "T1490",
+      "score": 1,
+      "enabled": true,
+      "comment": "[detection] Volume Shadow Copy Deletion via Native Utilities (detections/rules/lotl_vssadmin_shadow_delete.yaml; ISM: ISM-0580, ISM-1405, ISM-1511)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1405, ISM-1511"
+        }
+      ],
+      "tactic": "impact"
+    },
+    {
+      "techniqueID": "T1505.003",
+      "score": 2,
+      "enabled": true,
+      "comment": "[detection] Web Server Process Spawning Command Shell (Web Shell Follow-On) (detections/rules/edge_citrix_webshell_followup.yaml; ISM: ISM-0580, ISM-1144, ISM-1405)\n[detection] Suspicious PHP Web Shell Script Dropped into Webroot (detections/rules/web_php_suspicious_file_drop.yaml; ISM: ISM-0580, ISM-1144, ISM-1405)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "2"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1144, ISM-1405"
+        }
+      ],
+      "tactic": "persistence"
+    },
+    {
+      "techniqueID": "T1528",
+      "score": 2,
+      "enabled": true,
+      "comment": "[detection] High-Risk OAuth Permission Consent Granted in Microsoft Entra ID (detections/rules/identity_ai_high_risk_oauth_consent.yaml; ISM: ISM-0580, ISM-1405, ISM-1504, ISM-1657)\n[detection] High-Risk Cloud Sign-In Without Phishing-Resistant MFA (detections/rules/phishing_signin_token_anomaly.yaml; ISM: ISM-0580, ISM-1405, ISM-1504, ISM-1657)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "2"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1405, ISM-1504, ISM-1657"
+        }
+      ],
+      "tactic": "credential-access"
+    },
+    {
+      "techniqueID": "T1543.003",
+      "score": 1,
+      "enabled": true,
+      "comment": "[hunting] Living off the Land Remote Service Creation via SC.exe (hunting/lotl/lotl_hunt_sc_remote_service_creation.yaml; ISM: ISM-0580, ISM-1405, ISM-1657)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1405, ISM-1657"
+        }
+      ],
+      "tactic": "persistence"
+    },
+    {
+      "techniqueID": "T1543.003",
+      "score": 1,
+      "enabled": true,
+      "comment": "[hunting] Living off the Land Remote Service Creation via SC.exe (hunting/lotl/lotl_hunt_sc_remote_service_creation.yaml; ISM: ISM-0580, ISM-1405, ISM-1657)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1405, ISM-1657"
+        }
+      ],
+      "tactic": "privilege-escalation"
+    },
+    {
+      "techniqueID": "T1550.001",
+      "score": 1,
+      "enabled": true,
+      "comment": "[detection] High-Risk OAuth Permission Consent Granted in Microsoft Entra ID (detections/rules/identity_ai_high_risk_oauth_consent.yaml; ISM: ISM-0580, ISM-1405, ISM-1504, ISM-1657)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1405, ISM-1504, ISM-1657"
+        }
+      ],
+      "tactic": "lateral-movement"
+    },
+    {
+      "techniqueID": "T1555.003",
+      "score": 1,
+      "enabled": true,
+      "comment": "[detection] Non-Browser Process Accessing Browser Credential Stores (detections/rules/waterplum_browser_credential_access.yaml; ISM: ISM-0580, ISM-1405, ISM-1657)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1405, ISM-1657"
+        }
+      ],
+      "tactic": "credential-access"
+    },
+    {
+      "techniqueID": "T1560.001",
+      "score": 1,
+      "enabled": true,
+      "comment": "[detection] Password-Protected Archive Staging for Data Exfiltration (detections/rules/apt_archive_staging_exfil.yaml; ISM: ISM-0580, ISM-1405)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1405"
+        }
+      ],
+      "tactic": "collection"
+    },
+    {
+      "techniqueID": "T1566.002",
+      "score": 1,
+      "enabled": true,
+      "comment": "[detection] Suspicious Exchange Online Inbox Forwarding or Hiding Rule Created (detections/rules/phishing_inbox_forwarding_rule.yaml; ISM: ISM-0580, ISM-1405, ISM-1504)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1405, ISM-1504"
+        }
+      ],
+      "tactic": "initial-access"
+    },
+    {
+      "techniqueID": "T1572",
+      "score": 1,
+      "enabled": true,
+      "comment": "[hunting] Living off the Land SSH or Plink Reverse and SOCKS Tunnelling (hunting/lotl/lotl_hunt_ssh_remote_port_forward.yaml; ISM: ISM-0580, ISM-1405, ISM-1690)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1405, ISM-1690"
+        }
+      ],
+      "tactic": "command-and-control"
+    },
+    {
+      "techniqueID": "T1685.005",
+      "score": 1,
+      "enabled": true,
+      "comment": "[hunting] Living off the Land Windows Event Log Clearing (hunting/lotl/lotl_hunt_wevtutil_log_clearing.yaml; ISM: ISM-0580, ISM-1405)",
+      "metadata": [
+        {
+          "name": "coverage_count",
+          "value": "1"
+        },
+        {
+          "name": "ism_controls",
+          "value": "ISM-0580, ISM-1405"
+        }
+      ],
+      "tactic": "defense-impairment"
+    }
+  ],
+  "gradient": {
+    "colors": [
+      "#ffffff",
+      "#6baed6",
+      "#08519c"
+    ],
+    "minValue": 0,
+    "maxValue": 3
+  },
+  "legendItems": [
+    {
+      "label": "Single rule or hunting query",
+      "color": "#6baed6"
+    },
+    {
+      "label": "Multiple rules and/or hunting queries",
+      "color": "#08519c"
+    }
+  ],
+  "metadata": [
+    {
+      "name": "project",
+      "value": "sentinel-detections-au"
+    },
+    {
+      "name": "matrix_version",
+      "value": "20.1"
+    }
+  ],
+  "showTacticRowBackground": true,
+  "tacticRowBackground": "#dddddd"
+}

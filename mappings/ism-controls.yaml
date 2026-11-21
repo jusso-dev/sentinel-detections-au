@@ -1,0 +1,34 @@
+# Short reference catalogue of ASD Information Security Manual (ISM) controls mapped by
+# detections and hunting queries in this repository.
+# Always check the current official ISM release at https://www.cyber.gov.au/ism.
+# This is an independent community mapping and is not endorsed by ASD or the ACSC.
+
+source: https://www.cyber.gov.au/ism
+controls:
+  ISM-0580:
+    section: Guidelines for System Monitoring
+    topic: Centralised event log collection, protection and security monitoring
+  ISM-0843:
+    section: Guidelines for System Hardening
+    topic: Application control to prevent execution of unapproved executables and scripts
+  ISM-1144:
+    section: Guidelines for System Management
+    topic: Vulnerability scanning and timely security patching of internet-facing systems
+  ISM-1405:
+    section: Guidelines for System Monitoring
+    topic: Timely analysis of event logs to detect cyber security events and incidents
+  ISM-1504:
+    section: Guidelines for Authentication
+    topic: Multi-factor authentication for remote access, privileged access and cloud services
+  ISM-1511:
+    section: Guidelines for System Management
+    topic: Regular, protected and tested backups to support recovery from destructive attacks
+  ISM-1621:
+    section: Guidelines for System Hardening
+    topic: Restricting and auditing PowerShell and scripting interpreter execution
+  ISM-1657:
+    section: Guidelines for Authentication
+    topic: Protecting credentials, privileged accounts and identity infrastructure from theft
+  ISM-1690:
+    section: Guidelines for System Management
+    topic: Rapid patching of critical vulnerabilities in online services and edge appliances
