@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sentinel-detections-au"
-version = "0.1.0"
+version = "1.0.0"
 description = "Defender XDR and Microsoft Sentinel detection pack mapping ASD and ACSC advisories to MITRE ATT&CK, KQL and ISM controls."
 readme = "README.md"
 license = "MIT"

@@ -1,0 +1,68 @@
+name: Release Package
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Validate and attach release package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -e ".[dev]"
+
+      - name: Run full verification suite
+        run: |
+          ruff check .
+          python -m pipeline.validate
+          python -m pipeline.render --check
+          python -m pipeline.kql_harness
+          python -m pipeline.coverage --check
+          python -m pipeline.package --check
+          pytest -v
+
+      - name: Build release archive
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          mkdir -p dist
+          tar -czf "dist/sentinel-detections-au-${TAG_NAME}.tar.gz" \
+            README.md \
+            LICENSE \
+            CHANGELOG.md \
+            advisories \
+            deploy \
+            detections \
+            docs \
+            hunting \
+            mappings \
+            schemas
+          cp deploy/azuredeploy.json "dist/azuredeploy-${TAG_NAME}.json"
+          cp mappings/attack-navigator-layer.json "dist/attack-navigator-layer-${TAG_NAME}.json"
+
+      - name: Upload artefacts to GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            gh release upload "$TAG_NAME" dist/* --clobber
+          else
+            gh release create "$TAG_NAME" dist/* \
+              --title "sentinel-detections-au ${TAG_NAME}" \
+              --notes-file CHANGELOG.md
+          fi

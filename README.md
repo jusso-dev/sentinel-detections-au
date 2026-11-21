@@ -2,7 +2,7 @@
 
 Defender XDR and Microsoft Sentinel detection pack that maps ASD and ACSC advisories to MITRE ATT&CK, KQL and ISM controls, refreshed automatically.
 
-> **Status:** early build. Work is tracked in [issues](https://github.com/jusso-dev/sentinel-detections-au/issues).
+> **Status:** v1.0.0 release. See [CHANGELOG.md](CHANGELOG.md) and [docs/coverage-report.md](docs/coverage-report.md).
 
 ## Goal
 
