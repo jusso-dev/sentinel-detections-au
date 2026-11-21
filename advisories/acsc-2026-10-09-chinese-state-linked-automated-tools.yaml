@@ -1,0 +1,42 @@
+id: acsc-2026-10-09-chinese-state-linked-automated-tools
+title: Chinese government-linked cyber threat actors combine automated and hands-on hacking tools to steal sensitive data
+date: "2026-10-09"
+source: advisories
+link: https://www.cyber.gov.au/advisory/chinese-government-linked-cyber-threat-actors-combine-automated-and-hands-on-hacking-tools-to-steal-sensitive-data
+status: reviewed
+needs_human_review: false
+summary: >-
+  ASD's ACSC advisory explaining how Chinese state-linked actors pair automated vulnerability
+  exploitation and reconnaissance tooling with hands-on post-exploitation activity to collect
+  and exfiltrate sensitive organisational data. Defenders using Microsoft Sentinel and
+  Microsoft Defender XDR should monitor for internet-facing service exploitation follow-on
+  shells, credential harvesting, archive staging and anomalous outbound transfers.
+attack_techniques:
+  - T1190
+  - T1059.001
+  - T1003.001
+  - T1560.001
+  - T1041
+affected_products:
+  - Internet-facing web applications
+  - Edge network appliances
+  - Microsoft Windows
+  - Linux
+iocs:
+  published: false
+  notes: >-
+    Check the canonical cyber.gov.au advisory page for any updated attachments or indicator
+    lists released after initial publication.
+ism_controls:
+  - ISM-0580
+  - ISM-1144
+  - ISM-1405
+  - ISM-1690
+linked_detections: []
+attribution: >-
+  Summarised independently from official ASD ACSC advisory (Commonwealth of Australia 2026).
+  Refer to the linked cyber.gov.au publication for authoritative text.
+extraction_metadata:
+  extracted_at: "2026-11-21"
+  method: manual
+  llm_assisted: false
