@@ -40,5 +40,8 @@ jobs:
       - name: Verify ATT&CK Navigator layer and ISM coverage report
         run: python -m pipeline.coverage --check
 
+      - name: Verify Sentinel ARM deployment package
+        run: python -m pipeline.package --check
+
       - name: Run unit tests
         run: pytest -v
