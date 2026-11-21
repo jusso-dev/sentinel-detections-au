@@ -17,7 +17,7 @@ All rules are tested against sample data in CI and packaged for one-step deploym
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjusso-dev%2Fsentinel-detections-au%2Fmain%2Fdeploy%2Fazuredeploy.json)
 
-See [deploy/README.md](deploy/README.md) for Microsoft Sentinel ARM and least-privilege Microsoft Graph Defender XDR deployment steps.
+See [deploy/README.md](deploy/README.md) for Microsoft Sentinel ARM and least-privilege Microsoft Graph Defender XDR deployment steps, [docs/architecture.md](docs/architecture.md) for pipeline diagrams, and [docs/coverage-report.md](docs/coverage-report.md) for ASD ISM and ATT&CK coverage.
 
 ## Layout
 
