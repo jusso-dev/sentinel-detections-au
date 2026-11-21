@@ -1,0 +1,27 @@
+id: 7e5f1a2c-9c7b-4e4e-8d3b-2b1c4d5e6f05
+name: Living off the Land Windows Event Log Clearing
+description: >-
+  Hunts for wevtutil.exe or PowerShell Clear-EventLog clearing Security, System or
+  PowerShell event logs to conceal living off the land activity.
+author: sentinel-detections-au
+tactics:
+  - DefenseEvasion
+techniques:
+  - T1685.005
+ism_controls:
+  - ISM-0580
+  - ISM-1405
+advisories:
+  - acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques
+tables:
+  - DeviceProcessEvents
+query: |
+  DeviceProcessEvents
+  | where (FileName =~ "wevtutil.exe" and ProcessCommandLine has_any (" cl ", " clear-log "))
+      or (FileName in~ ("powershell.exe", "pwsh.exe") and ProcessCommandLine has_any ("Clear-EventLog", "Remove-EventLog", "Limit-EventLog"))
+  | project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine
+false_positives:
+  - Authorised system rebuild or log rotation scripts during maintenance windows.
+references:
+  - https://www.cyber.gov.au/advisory/identifying-and-mitigating-living-off-the-land-techniques
+  - https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-deviceprocessevents-table

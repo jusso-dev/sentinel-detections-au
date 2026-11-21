@@ -1,0 +1,29 @@
+id: 7e5f1a2c-9c7b-4e4e-8d3b-2b1c4d5e6f04
+name: Living off the Land Registry SAM and SYSTEM Hive Extraction
+description: >-
+  Hunts for reg.exe saving HKLM\SAM, HKLM\SYSTEM or HKLM\SECURITY hives to disk for offline
+  credential extraction.
+author: sentinel-detections-au
+tactics:
+  - CredentialAccess
+techniques:
+  - T1003.002
+ism_controls:
+  - ISM-0580
+  - ISM-1405
+  - ISM-1657
+advisories:
+  - acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques
+tables:
+  - DeviceProcessEvents
+query: |
+  DeviceProcessEvents
+  | where FileName =~ "reg.exe"
+  | where ProcessCommandLine has "save"
+  | where ProcessCommandLine has_any ("hklm\\sam", "hklm\\system", "hklm\\security", "hkey_local_machine\\sam", "hkey_local_machine\\system")
+  | project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, ProcessCommandLine
+false_positives:
+  - Incident response or authorised forensic collection scripts backing up registry hives.
+references:
+  - https://www.cyber.gov.au/advisory/identifying-and-mitigating-living-off-the-land-techniques
+  - https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-deviceprocessevents-table

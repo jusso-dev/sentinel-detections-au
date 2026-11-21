@@ -1,0 +1,31 @@
+{
+  "@odata.type": "#microsoft.graph.security.detectionRule",
+  "displayName": "Netsh Portproxy Tunnel Configuration",
+  "isEnabled": true,
+  "queryCondition": {
+    "queryText": "DeviceProcessEvents\n| where FileName =~ \"netsh.exe\"\n| where ProcessCommandLine has_all (\"interface\", \"portproxy\", \"add\")\n| project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine, ReportId"
+  },
+  "schedule": {
+    "period": "1H"
+  },
+  "detectionAction": {
+    "alertTemplate": {
+      "title": "Netsh Portproxy Tunnel Configuration",
+      "description": "Detects netsh.exe creating IPv4/IPv6 portproxy forwarding rules to pivot traffic through compromised Windows hosts, a hallmark living off the land proxying technique noted in ASD/ACSC joint guidance. ISM controls: ISM-0580, ISM-1405, ISM-1621. Advisories: acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques.",
+      "severity": "high",
+      "category": "CommandAndControl",
+      "mitreTechniques": [
+        "T1090.001"
+      ],
+      "recommendedActions": "List active portproxy mappings on the host, remove unauthorised forwarding rules, and inspect connected internal and external endpoints for lateral movement (ISM controls: ISM-0580, ISM-1405, ISM-1621; Advisories: acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques).",
+      "impactedAssets": [
+        {
+          "@odata.type": "#microsoft.graph.security.impactedDeviceAsset",
+          "identifier": "deviceId"
+        }
+      ]
+    },
+    "organizationalScope": null,
+    "responseActions": []
+  }
+}

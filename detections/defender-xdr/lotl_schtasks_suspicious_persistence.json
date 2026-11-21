@@ -1,0 +1,31 @@
+{
+  "@odata.type": "#microsoft.graph.security.detectionRule",
+  "displayName": "Suspicious Scheduled Task Creation Invoking Script Engine",
+  "isEnabled": true,
+  "queryCondition": {
+    "queryText": "DeviceProcessEvents\n| where FileName =~ \"schtasks.exe\"\n| where ProcessCommandLine has_any (\"/create\", \"-create\")\n| where ProcessCommandLine has_any (\"powershell\", \"pwsh\", \"wscript\", \"cscript\", \"mshta\", \"cmd.exe\", \"\\\\temp\\\\\", \"\\\\public\\\\\", \"\\\\appdata\\\\\")\n| project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine, ReportId"
+  },
+  "schedule": {
+    "period": "1H"
+  },
+  "detectionAction": {
+    "alertTemplate": {
+      "title": "Suspicious Scheduled Task Creation Invoking Script Engine",
+      "description": "Detects schtasks.exe creating scheduled tasks that invoke scripting interpreters or binaries located in user-writable temporary directories for persistence. ISM controls: ISM-0580, ISM-0843, ISM-1405, ISM-1621. Advisories: acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques.",
+      "severity": "medium",
+      "category": "Persistence",
+      "mitreTechniques": [
+        "T1053.005"
+      ],
+      "recommendedActions": "Inspect the scheduled task XML definition, validate the script target and owner account, and remove unauthorised persistence tasks (ISM controls: ISM-0580, ISM-0843, ISM-1405, ISM-1621; Advisories: acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques).",
+      "impactedAssets": [
+        {
+          "@odata.type": "#microsoft.graph.security.impactedDeviceAsset",
+          "identifier": "deviceId"
+        }
+      ]
+    },
+    "organizationalScope": null,
+    "responseActions": []
+  }
+}

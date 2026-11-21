@@ -1,0 +1,24 @@
+rule: detections/rules/lotl_schtasks_suspicious_persistence.yaml
+table: DeviceProcessEvents
+positive_cases:
+  - name: Schtasks creating recurring task running PowerShell from Temp
+    rows:
+      - Timestamp: "2026-10-16T03:00:00Z"
+        DeviceId: "00000000-0000-0000-0000-000000000020"
+        DeviceName: "ws-au-20.example.local"
+        AccountName: "jdoe"
+        InitiatingProcessFileName: "cmd.exe"
+        FileName: "schtasks.exe"
+        ProcessCommandLine: "schtasks.exe /create /tn Updater /tr \"powershell.exe -File C:\\Temp\\run.ps1\" /sc hourly"
+        ReportId: 20001
+negative_cases:
+  - name: Schtasks querying existing tasks read-only
+    rows:
+      - Timestamp: "2026-10-16T03:05:00Z"
+        DeviceId: "00000000-0000-0000-0000-000000000020"
+        DeviceName: "ws-au-20.example.local"
+        AccountName: "admin"
+        InitiatingProcessFileName: "powershell.exe"
+        FileName: "schtasks.exe"
+        ProcessCommandLine: "schtasks.exe /query /fo LIST"
+        ReportId: 20002

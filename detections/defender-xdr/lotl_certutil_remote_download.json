@@ -1,0 +1,31 @@
+{
+  "@odata.type": "#microsoft.graph.security.detectionRule",
+  "displayName": "Certutil Abuse for Remote File Download or Decoding",
+  "isEnabled": true,
+  "queryCondition": {
+    "queryText": "DeviceProcessEvents\n| where FileName =~ \"certutil.exe\"\n| where ProcessCommandLine has_any (\"-urlcache\", \"/urlcache\", \"-verifyctl\", \"/verifyctl\", \"-decode\", \"/decode\", \"-decodehex\")\n| where ProcessCommandLine has_any (\"http://\", \"https://\", \"ftp://\", \".exe\", \".dll\", \".ps1\", \".bat\", \".vbs\")\n| project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine, ReportId"
+  },
+  "schedule": {
+    "period": "1H"
+  },
+  "detectionAction": {
+    "alertTemplate": {
+      "title": "Certutil Abuse for Remote File Download or Decoding",
+      "description": "Detects certutil.exe invoked with urlcache, split or decode flags to retrieve remote payloads or decode staged files, a living off the land technique detailed in ASD/ACSC joint guidance. ISM controls: ISM-0580, ISM-0843, ISM-1405, ISM-1621. Advisories: acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques.",
+      "severity": "high",
+      "category": "CommandAndControl",
+      "mitreTechniques": [
+        "T1105"
+      ],
+      "recommendedActions": "Inspect the downloaded URL or decoded output file, verify parent process activity, and quarantine any unauthorised binaries staged by certutil (ISM controls: ISM-0580, ISM-0843, ISM-1405, ISM-1621; Advisories: acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques).",
+      "impactedAssets": [
+        {
+          "@odata.type": "#microsoft.graph.security.impactedDeviceAsset",
+          "identifier": "deviceId"
+        }
+      ]
+    },
+    "organizationalScope": null,
+    "responseActions": []
+  }
+}

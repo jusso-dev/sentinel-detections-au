@@ -1,0 +1,29 @@
+id: 7e5f1a2c-9c7b-4e4e-8d3b-2b1c4d5e6f07
+name: Living off the Land Curl or Wget Payload Staging to Temp Paths
+description: >-
+  Hunts for curl or wget writing downloaded scripts or binaries into temporary or world-writable
+  directories across Windows, Linux and macOS Defender XDR endpoints.
+author: sentinel-detections-au
+tactics:
+  - CommandAndControl
+techniques:
+  - T1105
+ism_controls:
+  - ISM-0580
+  - ISM-0843
+  - ISM-1405
+advisories:
+  - acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques
+tables:
+  - DeviceProcessEvents
+query: |
+  DeviceProcessEvents
+  | where FileName in~ ("curl.exe", "curl", "wget", "wget.exe")
+  | where ProcessCommandLine has_any ("http://", "https://")
+  | where ProcessCommandLine has_any (" -o ", " -O ", "--output", "/tmp/", "/dev/shm/", "\\temp\\", "\\public\\", "\\programdata\\")
+  | project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine
+false_positives:
+  - CI build agents or developer automation downloading packages into temporary paths.
+references:
+  - https://www.cyber.gov.au/advisory/identifying-and-mitigating-living-off-the-land-techniques
+  - https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-deviceprocessevents-table

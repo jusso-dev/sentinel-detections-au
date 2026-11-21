@@ -1,0 +1,30 @@
+id: 7e5f1a2c-9c7b-4e4e-8d3b-2b1c4d5e6f01
+name: Living off the Land Active Directory Enumeration Commands
+description: >-
+  Hunts for rapid or unusual execution of native Windows Active Directory discovery tools
+  (nltest, net, dsquery, ldifde, csvde) in Defender XDR DeviceProcessEvents.
+author: sentinel-detections-au
+tactics:
+  - Discovery
+techniques:
+  - T1087.002
+  - T1069.002
+ism_controls:
+  - ISM-0580
+  - ISM-1405
+advisories:
+  - acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques
+tables:
+  - DeviceProcessEvents
+query: |
+  DeviceProcessEvents
+  | where FileName in~ ("nltest.exe", "net.exe", "net1.exe", "dsquery.exe", "ldifde.exe", "csvde.exe")
+  | where ProcessCommandLine has_any ("domain_trusts", "dclist", "Domain Admins", "Enterprise Admins", "/domain", "user", "group")
+  | summarize CommandCount = count(), DistinctTools = dcount(FileName), Commands = make_set(ProcessCommandLine, 15)
+      by DeviceName, AccountName, bin(Timestamp, 1h)
+  | where CommandCount >= 3 or DistinctTools >= 2
+false_positives:
+  - Active Directory administrators running scheduled audit scripts or health checks.
+references:
+  - https://www.cyber.gov.au/advisory/identifying-and-mitigating-living-off-the-land-techniques
+  - https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-deviceprocessevents-table

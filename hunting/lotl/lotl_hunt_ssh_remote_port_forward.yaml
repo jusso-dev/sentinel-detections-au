@@ -1,0 +1,30 @@
+id: 7e5f1a2c-9c7b-4e4e-8d3b-2b1c4d5e6f08
+name: Living off the Land SSH or Plink Reverse and SOCKS Tunnelling
+description: >-
+  Hunts for native ssh or plink processes invoked with remote (-R), local (-L) or dynamic
+  SOCKS (-D) port-forwarding flags used to tunnel C2 or lateral traffic out of segmented networks.
+author: sentinel-detections-au
+tactics:
+  - CommandAndControl
+  - LateralMovement
+techniques:
+  - T1572
+  - T1021.004
+ism_controls:
+  - ISM-0580
+  - ISM-1405
+  - ISM-1690
+advisories:
+  - acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques
+tables:
+  - DeviceProcessEvents
+query: |
+  DeviceProcessEvents
+  | where FileName in~ ("ssh.exe", "ssh", "plink.exe", "plink")
+  | where ProcessCommandLine has_any (" -R ", " -L ", " -D ", "-N -R", "-f -N")
+  | project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine
+false_positives:
+  - Engineers using authorised SSH port forwarding for database or bastion administration.
+references:
+  - https://www.cyber.gov.au/advisory/identifying-and-mitigating-living-off-the-land-techniques
+  - https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-deviceprocessevents-table

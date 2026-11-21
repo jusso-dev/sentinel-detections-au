@@ -1,0 +1,48 @@
+id: 6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e20
+name: Suspicious Scheduled Task Creation Invoking Script Engine
+description: 'Detects schtasks.exe creating scheduled tasks that invoke scripting interpreters or binaries
+  located in user-writable temporary directories for persistence. ISM controls: ISM-0580, ISM-0843, ISM-1405,
+  ISM-1621. Advisories: acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques.'
+severity: Medium
+status: Available
+kind: Scheduled
+queryFrequency: PT1H
+queryPeriod: PT1H
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- Execution
+- Persistence
+relevantTechniques:
+- T1053.005
+query: 'DeviceProcessEvents
+
+  | where FileName =~ "schtasks.exe"
+
+  | where ProcessCommandLine has_any ("/create", "-create")
+
+  | where ProcessCommandLine has_any ("powershell", "pwsh", "wscript", "cscript", "mshta", "cmd.exe",
+  "\\temp\\", "\\public\\", "\\appdata\\")
+
+  | project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine,
+  ReportId
+
+  '
+version: 1.0.0
+requiredDataConnectors:
+- connectorId: MicrosoftThreatProtection
+  dataTypes:
+  - DeviceProcessEvents
+entityMappings:
+- entityType: Host
+  fieldMappings:
+  - identifier: HostName
+    columnName: DeviceName
+- entityType: Account
+  fieldMappings:
+  - identifier: Name
+    columnName: AccountName
+- entityType: Process
+  fieldMappings:
+  - identifier: CommandLine
+    columnName: ProcessCommandLine

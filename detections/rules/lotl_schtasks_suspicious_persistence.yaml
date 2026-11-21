@@ -1,0 +1,68 @@
+id: 6d4e0e1b-8b6a-4f3d-9c2a-1a0b3c4d5e20
+name: Suspicious Scheduled Task Creation Invoking Script Engine
+description: >-
+  Detects schtasks.exe creating scheduled tasks that invoke scripting interpreters or
+  binaries located in user-writable temporary directories for persistence.
+author: sentinel-detections-au
+version: 1.0.0
+severity: Medium
+status: production
+targets:
+  - sentinel
+  - defender_xdr
+query_frequency: PT1H
+query_period: PT1H
+trigger_operator: gt
+trigger_threshold: 0
+tactics:
+  - Execution
+  - Persistence
+techniques:
+  - T1053.005
+ism_controls:
+  - ISM-0580
+  - ISM-0843
+  - ISM-1405
+  - ISM-1621
+advisories:
+  - acsc-2024-02-07-identifying-and-mitigating-living-off-the-land-techniques
+tables:
+  - DeviceProcessEvents
+required_data_connectors:
+  - connector_id: MicrosoftThreatProtection
+    data_types:
+      - DeviceProcessEvents
+entity_mappings:
+  - entity_type: Host
+    field_mappings:
+      - identifier: HostName
+        column_name: DeviceName
+  - entity_type: Account
+    field_mappings:
+      - identifier: Name
+        column_name: AccountName
+  - entity_type: Process
+    field_mappings:
+      - identifier: CommandLine
+        column_name: ProcessCommandLine
+defender_xdr:
+  period: 1H
+  category: Persistence
+  recommended_actions: >-
+    Inspect the scheduled task XML definition, validate the script target and owner account,
+    and remove unauthorised persistence tasks.
+  impacted_assets:
+    - type: device
+      identifier: deviceId
+      column: DeviceId
+query: |
+  DeviceProcessEvents
+  | where FileName =~ "schtasks.exe"
+  | where ProcessCommandLine has_any ("/create", "-create")
+  | where ProcessCommandLine has_any ("powershell", "pwsh", "wscript", "cscript", "mshta", "cmd.exe", "\\temp\\", "\\public\\", "\\appdata\\")
+  | project Timestamp, DeviceId, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine, ReportId
+false_positives:
+  - Legitimate software installers or IT automation registering PowerShell maintenance tasks.
+references:
+  - https://www.cyber.gov.au/advisory/identifying-and-mitigating-living-off-the-land-techniques
+  - https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-deviceprocessevents-table

