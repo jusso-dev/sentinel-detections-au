@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
+  <channel>
+    <title>ASD's ACSC - Advisories RSS</title>
+    <link>https://www.cyber.gov.au/</link>
+    <item>
+      <title>Chinese government-linked cyber threat actors combine automated and hands-on hacking tools to steal sensitive data</title>
+      <link>https://www.cyber.gov.au/advisory/chinese-government-linked-cyber-threat-actors-combine-automated-and-hands-on-hacking-tools-to-steal-sensitive-data</link>
+      <description>Learn how Chinese state-linked cyber actors steal sensitive data.</description>
+      <pubDate>Fri, 09 Oct 2026 09:10:58 +1100</pubDate>
+      <guid isPermaLink="true">https://www.cyber.gov.au/advisory/chinese-government-linked-cyber-threat-actors-combine-automated-and-hands-on-hacking-tools-to-steal-sensitive-data</guid>
+    </item>
+    <item>
+      <title>Protect your organisations' AI services</title>
+      <link>https://www.cyber.gov.au/advisory/protect-your-organisations-ai-services</link>
+      <description>Protect access to AI services by securing accounts and credentials.</description>
+      <pubDate>Fri, 25 Sep 2026 10:14:48 +1000</pubDate>
+      <guid isPermaLink="true">https://www.cyber.gov.au/advisory/protect-your-organisations-ai-services</guid>
+    </item>
+  </channel>
+</rss>

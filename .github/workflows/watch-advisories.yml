@@ -1,0 +1,103 @@
+name: Watch ASD/ACSC Advisories
+
+on:
+  schedule:
+    # Runs once daily at 20:00 UTC (06:00 AEST / 07:00 AEDT).
+    - cron: "0 20 * * *"
+  workflow_dispatch:
+    inputs:
+      max_new:
+        description: "Maximum number of new draft advisories to create"
+        required: false
+        default: "5"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: watch-advisories
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    name: Fetch new advisories and open draft PR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -e ".[dev]"
+
+      - name: Run advisory watcher
+        env:
+          MAX_NEW: ${{ inputs.max_new || '5' }}
+        run: |
+          python -m pipeline.watcher \
+            --advisories-dir advisories \
+            --max-new "$MAX_NEW" \
+            --delay-seconds 2.0 \
+            --pr-body-out /tmp/advisory-pr-body.md
+
+      - name: Check for new draft advisories
+        id: changes
+        run: |
+          if [ -n "$(git status --porcelain advisories/)" ]; then
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Validate repository with new drafts
+        if: steps.changes.outputs.has_changes == 'true'
+        run: python -m pipeline.validate
+
+      - name: Create or update pull request
+        if: steps.changes.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="automation/advisory-watch"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
+            git fetch origin "$BRANCH"
+            git checkout -B "$BRANCH" "origin/$BRANCH"
+            python -m pipeline.watcher \
+              --advisories-dir advisories \
+              --max-new "${{ inputs.max_new || '5' }}" \
+              --delay-seconds 2.0 \
+              --pr-body-out /tmp/advisory-pr-body.md
+          else
+            git checkout -b "$BRANCH"
+          fi
+
+          if [ -z "$(git status --porcelain advisories/)" ]; then
+            echo "All discovered advisories already exist on $BRANCH."
+            exit 0
+          fi
+
+          git add advisories/
+          git commit -m "chore(advisories): add draft ASD/ACSC advisory records"
+          git push origin "$BRANCH"
+
+          EXISTING_PR=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number // empty')
+          if [ -z "$EXISTING_PR" ]; then
+            gh pr create \
+              --base main \
+              --head "$BRANCH" \
+              --title "chore(advisories): review new ASD/ACSC draft advisories" \
+              --body-file /tmp/advisory-pr-body.md
+          else
+            gh pr comment "$EXISTING_PR" --body-file /tmp/advisory-pr-body.md
+          fi
