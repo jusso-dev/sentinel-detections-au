@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import html
 import json
+import logging
 import re
 import time
 import urllib.request
@@ -15,6 +16,7 @@ from datetime import UTC, datetime
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any
+from urllib.error import URLError
 from urllib.parse import urlparse
 
 import yaml
@@ -34,6 +36,7 @@ USER_AGENT = (
 HTML_TAG_RE = re.compile(r"<[^>]+>")
 WHITESPACE_RE = re.compile(r"\s+")
 NON_SLUG_RE = re.compile(r"[^a-z0-9]+")
+LOGGER = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -134,10 +137,18 @@ def parse_rss_xml(xml_text: str, source: str) -> list[FeedItem]:
 
 
 def fetch_url(url: str, timeout: int = 20) -> str:
-    """Fetch a URL politely using the project User-Agent."""
+    """Fetch with up to three attempts and exponential backoff for network failures."""
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return resp.read().decode("utf-8", errors="replace")
+    for attempt in range(3):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                return resp.read().decode("utf-8", errors="replace")
+        except (TimeoutError, URLError) as exc:
+            if attempt == 2:
+                raise
+            delay = 2.0**attempt
+            LOGGER.warning("Fetch failed for %s: %s; retrying in %.1fs", url, exc, delay)
+            time.sleep(delay)
 
 
 def load_existing_index(advisories_dir: Path) -> tuple[set[str], set[str]]:
@@ -283,7 +294,11 @@ def run_watcher(
     for idx, (source, url) in enumerate(feed_map.items()):
         if idx > 0 and delay_seconds > 0:
             sleep_fn(delay_seconds)
-        xml_text = fetch_fn(url)
+        try:
+            xml_text = fetch_fn(url)
+        except (TimeoutError, URLError) as exc:
+            LOGGER.warning("Skipping %s feed (%s): %s", source, url, exc)
+            continue
         feed_items_all.extend(parse_rss_xml(xml_text, source=source))
 
     for item in feed_items_all:

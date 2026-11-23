@@ -3,15 +3,112 @@
 from __future__ import annotations
 
 from pathlib import Path
+from unittest.mock import MagicMock
+from urllib.error import URLError
 
+import pytest
 import yaml
 
 from pipeline.checks.schemas import load_schema, validate_against_schema
 from pipeline.checks.style import check_text_style
-from pipeline.watcher import clean_plain_text, parse_rss_xml, render_pr_body, run_watcher
+from pipeline.watcher import (
+    DEFAULT_FEEDS,
+    USER_AGENT,
+    clean_plain_text,
+    fetch_url,
+    main,
+    parse_rss_xml,
+    render_pr_body,
+    run_watcher,
+)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 FIXTURES_DIR = REPO_ROOT / "tests" / "fixtures"
+
+
+@pytest.mark.parametrize("failure", [TimeoutError("read timed out"), URLError("unavailable")])
+@pytest.mark.parametrize("failure_stage", ["open", "read"])
+def test_fetch_url_retries_then_succeeds(monkeypatch, failure, failure_stage) -> None:
+    response = MagicMock()
+    response.__enter__.return_value = response
+    response.read.return_value = b"feed contents"
+    urlopen = MagicMock(return_value=response)
+    if failure_stage == "open":
+        urlopen.side_effect = [failure, failure, response]
+    else:
+        response.read.side_effect = [failure, failure, b"feed contents"]
+    sleep = MagicMock()
+    monkeypatch.setattr("pipeline.watcher.urllib.request.urlopen", urlopen)
+    monkeypatch.setattr("pipeline.watcher.time.sleep", sleep)
+
+    assert fetch_url(DEFAULT_FEEDS["advisories"], timeout=7) == "feed contents"
+    assert urlopen.call_count == 3
+    assert [call.args[0] for call in sleep.call_args_list] == [1.0, 2.0]
+    for call in urlopen.call_args_list:
+        assert call.kwargs == {"timeout": 7}
+        assert call.args[0].get_header("User-agent") == USER_AGENT
+    assert response.__exit__.call_count == (3 if failure_stage == "read" else 1)
+
+
+@pytest.mark.parametrize("failure", [TimeoutError("read timed out"), URLError("unavailable")])
+def test_fetch_url_stops_after_three_attempts(monkeypatch, failure) -> None:
+    urlopen = MagicMock(side_effect=failure)
+    sleep = MagicMock()
+    monkeypatch.setattr("pipeline.watcher.urllib.request.urlopen", urlopen)
+    monkeypatch.setattr("pipeline.watcher.time.sleep", sleep)
+
+    with pytest.raises(type(failure)):
+        fetch_url(DEFAULT_FEEDS["advisories"])
+    assert urlopen.call_count == 3
+    assert sleep.call_count == 2
+
+
+@pytest.mark.parametrize("failed_source", ["advisories", "alerts"])
+def test_watcher_cli_skips_failed_feed_and_writes_drafts(
+    tmp_path, monkeypatch, caplog, capsys, failed_source
+) -> None:
+    healthy_source = "alerts" if failed_source == "advisories" else "advisories"
+    xml = (FIXTURES_DIR / f"rss_{healthy_source}.xml").read_bytes()
+    response = MagicMock()
+    response.__enter__.return_value = response
+    response.read.return_value = xml
+
+    def open_feed(request, timeout):
+        if request.full_url == DEFAULT_FEEDS[failed_source]:
+            raise TimeoutError("The read operation timed out")
+        return response
+
+    urlopen = MagicMock(side_effect=open_feed)
+    monkeypatch.setattr("pipeline.watcher.urllib.request.urlopen", urlopen)
+    monkeypatch.setattr("pipeline.watcher.time.sleep", lambda _: None)
+    advisories_dir = tmp_path / "advisories"
+    pr_body = tmp_path / "pr-body.md"
+
+    assert main([
+        "--advisories-dir", str(advisories_dir),
+        "--max-new", "5",
+        "--delay-seconds", "0",
+        "--pr-body-out", str(pr_body),
+    ]) == 0
+    expected = parse_rss_xml(xml.decode(), source=healthy_source)
+    assert len(list(advisories_dir.glob("*.yaml"))) == len(expected) > 0
+    assert pr_body.exists()
+    assert all(item.title in pr_body.read_text() for item in expected)
+    assert urlopen.call_count == 4
+    assert f"Skipping {failed_source} feed" in caplog.text
+    assert DEFAULT_FEEDS[failed_source] in caplog.text
+    assert "The read operation timed out" in caplog.text
+    assert '"created_count":' in capsys.readouterr().out
+
+
+def test_watcher_reports_all_failed_feeds(tmp_path, caplog) -> None:
+    def fail(url):
+        raise URLError("unavailable")
+
+    assert run_watcher(tmp_path, fetch_fn=fail, delay_seconds=0) == []
+    assert not list(tmp_path.glob("*.yaml"))
+    assert "Skipping advisories feed" in caplog.text
+    assert "Skipping alerts feed" in caplog.text
 
 
 def test_clean_plain_text_removes_em_dash_and_html() -> None:
